@@ -1,0 +1,13 @@
+{
+  "itemGroup.township": "Example Mod Tab",
+  "block.township.example_block": "Example Block",
+  "item.township.example_item": "Example Item",
+
+  "township.configuration.title": "Township Configs",
+  "township.configuration.section.township.common.toml": "Township Configs",
+  "township.configuration.section.township.common.toml.title": "Township Configs",
+  "township.configuration.items": "Item List",
+  "township.configuration.logDirtBlock": "Log Dirt Block",
+  "township.configuration.magicNumberIntroduction": "Magic Number Text",
+  "township.configuration.magicNumber": "Magic Number"
+}
