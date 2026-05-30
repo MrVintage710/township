@@ -1,7 +1,7 @@
 package com.mrvintage.township.ui.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mrvintage.township.Township;
+import com.mrvintage.township.ui.BlitSprite;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
