@@ -1,9 +1,15 @@
 package com.mrvintage.township;
 
-import com.mojang.serialization.Codec;
-import com.mrvintage.township.proficiency.Proficiency;
+import com.mrvintage.township.event.ClientGameEvents;
+import com.mrvintage.township.event.ServerModEvents;
+import com.mrvintage.township.proficiency.ProficiencyStats;
+import com.mrvintage.township.proficiency.ProficiencyResourceReloadListener;
+import com.mrvintage.township.ui.PlayerInventoryPatch;
+import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.attachment.AttachmentType;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
@@ -21,7 +27,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
@@ -65,7 +70,7 @@ public class Township {
 
     public static final Supplier<AttachmentType<Integer>> PROFICIENCY = ATTACHMENT_TYPES.register(
             "proficiency",
-            () -> AttachmentType.serializable(() -> new Proficiency()).build()
+            () -> AttachmentType.serializable(() -> new ProficiencyStats()).build()
     );
 
     // Creates a new BlockItem with the id "township:example_block", combining the namespace and path
@@ -89,6 +94,7 @@ public class Township {
     public Township(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+        modEventBus.register(new ServerModEvents());
 
         // Register the Deferred Register to the mod event bus so blocks get registered
         BLOCKS.register(modEventBus);
@@ -101,6 +107,9 @@ public class Township {
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+//        NeoForge.EVENT_BUS.register(ClientGameEvents.class);
+//        NeoForge.EVENT_BUS.register(ClientModEvents.class);
+        NeoForge.EVENT_BUS.register(PlayerInventoryPatch.class);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
@@ -137,8 +146,26 @@ public class Township {
         // Do something when the server starts
         LOGGER.info("HELLO from server starting");
 
-        FMLPaths.CONFIGDIR.get()
+        FMLPaths.CONFIGDIR.get();
     }
 
+    @SubscribeEvent
+    public void onLivingEntityDamaged(LivingDamageEvent.Pre event) {
+        if (event.getSource().getEntity() instanceof ServerPlayer player) {
+            var registry = player.serverLevel().registryAccess().registry(ServerModEvents.PROFICIENCY_REGISTRY_KEY);
+            player.sendSystemMessage(Component.literal("Hit!"));
+            if (registry.isPresent()) {
+                var count = registry.get().keySet().stream().count();
+                player.sendSystemMessage(Component.literal(String.valueOf(count)));
+                registry.get().forEach(proficiency -> {
+                    player.sendSystemMessage(Component.literal(proficiency.getName()));
+                });
+            }
+        }
+    }
 
+    @SubscribeEvent
+    public void onRegisterReloadListener(AddReloadListenerEvent event) {
+        event.addListener(new ProficiencyResourceReloadListener());
+    }
 }
