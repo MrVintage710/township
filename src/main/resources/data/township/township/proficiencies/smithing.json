@@ -1,0 +1,13 @@
+{
+  "name": "Smithing",
+  "id": "smithing",
+  "icon": "minecraft:textures/item/cauldron.png",
+  "tiers": [
+    {
+      "name": "Novice"
+    }
+  ],
+  "domain": [
+    "minecraft:oak_planks"
+  ]
+}
