@@ -1,16 +1,21 @@
 package com.mrvintage.township.ui.proficiency;
 
+import com.mojang.authlib.minecraft.client.MinecraftClient;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.ui.BlitSprite;
 import com.mrvintage.township.ui.Sprites;
 import com.mrvintage.township.ui.widgets.ParchmentButton;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 public class ProficiencyScreen extends Screen {
+
+    private static final int bgPaddingX = 18;
+    private static final int bgPaddingY = 18;
 
     protected int leftPos;
     protected int topPos;
@@ -37,7 +42,10 @@ public class ProficiencyScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        Sprites.PARCHEMENT_BG.blit(guiGraphics, 0, 0, 32, 64);
+
+        guiGraphics.drawString(Minecraft.getInstance().font, "Skils", leftPos + bgPaddingX, topPos + bgPaddingY, 0);
+
+        Sprites.PARCHEMENT_BG.blit(guiGraphics, 0, 0);
     }
 
     @Override

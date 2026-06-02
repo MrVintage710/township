@@ -1,7 +1,6 @@
 package com.mrvintage.township.ui;
 
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.resources.metadata.gui.GuiSpriteScaling;
 import net.minecraft.resources.ResourceLocation;
 
 public record BlitSprite(ResourceLocation sprite, int x, int y, int width, int height, int sprite_width, int sprite_height, BlitSpriteScaling scaling) {
@@ -30,11 +29,7 @@ public record BlitSprite(ResourceLocation sprite, int x, int y, int width, int h
         switch (scaling.type()) {
             case STRETCH -> this.innerBlit(graphics, x, y, width, height, this.x, this.y, this.width, this.height);
             case TILE -> this.blitTiledSprite(graphics, x, y, width, height, this.x, this.y, this.width, this.height);
-            case NINE_SLICE -> {
-                if(scaling instanceof BlitSpriteScaling.NineSlice nineSlice) {
-                    this.blitNineSlicedSprite(graphics, nineSlice, x, y, width, height);
-                }
-            }
+            case NINE_SLICE -> this.blitNineSlicedSprite(graphics, (BlitSpriteScaling.NineSlice) scaling, x, y, width, height);
         }
     }
 
@@ -56,7 +51,7 @@ public record BlitSprite(ResourceLocation sprite, int x, int y, int width, int h
         int top = Math.min(nineSlice.top(), height / 2);
         int bottom = Math.min(nineSlice.bottom(), height / 2);
         if (width == this.width && height == this.height) {
-            this.blit(graphics, x, y, width, height);
+            this.innerBlit(graphics, x, y, width, height, this.x, this.y, this.width, this.height);
         } else if (height == this.height) {
             this.innerBlit(graphics, x, y, left, height, this.x, this.y, left, height);
             this.blitTiledSprite(graphics, x + left, y, width - left - right, height, this.x + left, this.y, this.width - left - right, this.height);
@@ -66,32 +61,58 @@ public record BlitSprite(ResourceLocation sprite, int x, int y, int width, int h
             this.blitTiledSprite(graphics, x, y + top, width, height - top - bottom, this.x, this.y + top, this.width, this.height - top - bottom);
             this.innerBlit(graphics, x, y + height - bottom, width, bottom, this.x, this.y + this.height - bottom, width, bottom);
         } else {
-            // X---X---------X---X P1, P2, P3, P4
+            // These are the useful points that we cant use to construct the 9slice from a texture.
+            // These points are in texture space (uv).
+            // X1  X2        X3  X4
+            // X---X---------X---| Y1
             // |TL |    T    | TR|
-            // X---X---------X---X P5, P6, P7, P8
+            // X---X---------X---- Y2
             // |   |         |   |
             // | L |    M    | R |
             // |   |         |   |
-            // X---X---------X---X P9, P10, P11, P12
+            // X---X---------X---- Y3
             // |BL |    B    | BR|
-            // X---X---------X---X P13, P14, P15, P16
+            // X---X---------X---- Y4
 
-            int xP1 = this.x;
-            int yP1 = this.y;
+            int X1 = this.x;
+            int Y1 = this.y;
 
-            int xP2 = this.x + nineSlice.left();
-            int yP2 = this.y + nineSlice.top();
+            int X2 = this.x + nineSlice.left();
+            int Y2 = this.y + nineSlice.top();
 
+            int X3 = this.x + (this.width - nineSlice.right());
+            int Y3 = this.y + (this.height - nineSlice.bottom());
 
-            this.blitSprite((TextureAtlasSprite)sprite, nineSlice.width(), nineSlice.height(), 0, 0, x, y, blitOffset, left, top);
-            this.blitTiledSprite(sprite, x + left, y, blitOffset, width - right - left, top, left, 0, nineSlice.width() - right - left, top, nineSlice.width(), nineSlice.height());
-            this.blitSprite((TextureAtlasSprite)sprite, nineSlice.width(), nineSlice.height(), nineSlice.width() - right, 0, x + width - right, y, blitOffset, right, top);
-            this.blitSprite((TextureAtlasSprite)sprite, nineSlice.width(), nineSlice.height(), 0, nineSlice.height() - bottom, x, y + height - bottom, blitOffset, left, bottom);
-            this.blitTiledSprite(sprite, x + left, y + height - bottom, blitOffset, width - right - left, bottom, left, nineSlice.height() - bottom, nineSlice.width() - right - left, bottom, nineSlice.width(), nineSlice.height());
-            this.blitSprite(sprite, nineSlice.width(), nineSlice.height(), nineSlice.width() - right, nineSlice.height() - bottom, x + width - right, y + height - bottom, blitOffset, right, bottom);
-            this.blitTiledSprite(sprite, x, y + top, blitOffset, left, height - bottom - top, 0, top, left, nineSlice.height() - bottom - top, nineSlice.width(), nineSlice.height());
-            this.blitTiledSprite(sprite, x + left, y + top, blitOffset, width - right - left, height - bottom - top, left, top, nineSlice.width() - right - left, nineSlice.height() - bottom - top, nineSlice.width(), nineSlice.height());
-            this.blitTiledSprite(sprite, x + width - right, y + top, blitOffset, left, height - bottom - top, nineSlice.width() - right, top, right, nineSlice.height() - bottom - top, nineSlice.width(), nineSlice.height());
+            //These are in screen space
+            int middleWidth = width - left - right;
+            int middleHeight = height - top - bottom;
+
+            //Blit Top Left
+            this.innerBlit(graphics, x, y, left, top, X1, Y1, left, top);
+
+            //Blit Top
+            this.blitTiledSprite(graphics, x + left, y, middleWidth, top, X2, Y1, (X3 - X2), top);
+
+            //Blit Top Right
+            this.innerBlit(graphics, x + (width - right), y, right, top, X3, Y1, right, top);
+
+            //Blit Left
+            this.blitTiledSprite(graphics, x, y + top, left, middleHeight, X1, Y2, left, (Y3 - Y2));
+
+            //Blit Center
+            this.blitTiledSprite(graphics, x + left, y + top, middleWidth, middleHeight, X2, Y2, (X3 - X2), (Y3 - Y2));
+
+            //Blit Right
+            this.blitTiledSprite(graphics, x + (width - right), y + top, right, middleHeight, X3, Y2, right, (Y3 - Y2));
+
+            //Blit Bottom Left
+            this.innerBlit(graphics, x, y + (height - bottom), left, bottom, X1, Y3, left, bottom);
+
+            //Blit Bottom
+            this.blitTiledSprite(graphics, x + left, y + (height - bottom), middleWidth, bottom, X2, Y3, (X3 - X2), bottom);
+
+            //Blit Bottom Right
+            this.innerBlit(graphics, x + (width - right), y + (height - bottom), right, bottom, X3, Y3, right, bottom);
         }
 
     }
