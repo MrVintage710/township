@@ -1,4 +1,4 @@
-package com.mrvintage.township.ui.widgets;
+package com.mrvintage.township.ui.nodes;
 
 public interface Unit {
 
@@ -15,7 +15,7 @@ public interface Unit {
         @Override
         public int calc(int basis) {
             if (!this.isDirty) {
-                this.cached = (int) ((float) basis * this.percent)
+                this.cached = (int) ((float) basis * this.percent);
             }
 
             return this.cached;

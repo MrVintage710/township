@@ -6,7 +6,7 @@ import net.minecraft.network.chat.Component;
 public class ParchmentButton extends TownshipButton {
 
     public ParchmentButton(int x, int y, int width, int height, Component message) {
-        super(x, y, width, height, message, Sprites.PARCHEMENT_BG, Sprites.PARCHEMENT_BG_HOVER);
+        super(x, y, width, height, message, Sprites.PARCHMENT_BG, Sprites.PARCHMENT_BG_HOVER);
     }
 
     @Override

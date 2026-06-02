@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 public class ProficiencyButton extends TownshipButton {
 
     public ProficiencyButton(int x, int y) {
-        super(x, y, 20, 18, Component.empty(), Sprites.PROFIENCIES_BUTTON, Sprites.PROFIENCIES_BUTTON_HOVER);
+        super(x, y, Sprites.PROFIENCIES_BUTTON.width(), Sprites.PROFIENCIES_BUTTON.height(), Component.empty(), Sprites.PROFIENCIES_BUTTON, Sprites.PROFIENCIES_BUTTON_HOVER);
     }
 
     @Override

@@ -17,6 +17,13 @@ public class Sprites {
 
     private static final BlitSpriteScaling PARCHMENT_BG_SCALING = new BlitSpriteScaling.NineSlice(3, 3,3,3);
 
-    public static final BlitSprite PARCHEMENT_BG = PROFICIENCIES_FULL.slice(384, 16, 32, 16, PARCHMENT_BG_SCALING);
-    public static final BlitSprite PARCHEMENT_BG_HOVER = PROFICIENCIES_FULL.slice(384, 32, 32, 16, PARCHMENT_BG_SCALING);
+    public static final BlitSprite PARCHMENT_BG = PROFICIENCIES_FULL.slice(384, 16, 32, 16, PARCHMENT_BG_SCALING);
+    public static final BlitSprite PARCHMENT_BG_HOVER = PROFICIENCIES_FULL.slice(384, 32, 32, 16, PARCHMENT_BG_SCALING);
+
+    private static final BlitSpriteScaling PARCHMENT_SCROLL_SCALING = new BlitSpriteScaling.NineSlice(0, 0,1,2);
+    private static final BlitSpriteScaling PARCHMENT_SCROLL_HANDLE_SCALING = new BlitSpriteScaling.NineSlice(0, 0,2,2);
+
+    public static final BlitSprite PARCHMENT_SCROLL = PROFICIENCIES_FULL.slice(432, 48, 16, 16, PARCHMENT_SCROLL_SCALING);
+
+    public static final BlitSprite PARCHMENT_SCROLL_HANDLE = PROFICIENCIES_FULL.slice(453, 52, 6, 8, PARCHMENT_SCROLL_HANDLE_SCALING);
 }
