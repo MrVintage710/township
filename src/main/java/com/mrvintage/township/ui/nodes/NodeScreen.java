@@ -24,4 +24,9 @@ public abstract class NodeScreen extends Screen {
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         return this.root.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        return this.root.mouseReleased(mouseX, mouseY, button);
+    }
 }

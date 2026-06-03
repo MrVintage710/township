@@ -36,6 +36,7 @@ public class ScrollList extends Node {
         super.render(guiGraphics, mouseX, mouseY, delta);
         this.scrollUpButtonArea().debug(guiGraphics);
         guiGraphics.disableScissor();
+
     }
 
     @Override
@@ -58,7 +59,7 @@ public class ScrollList extends Node {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if(this.rect().contains(mouseX, mouseY)) {
             double value = isHorizontal ? scrollX : scrollY;
-            this.scroll(value);
+            this.scroll(value * 3.0);
         }
         return true;
     }
@@ -73,11 +74,25 @@ public class ScrollList extends Node {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        Township.LOGGER.info("Dragging {}", this.currentScrollOffset);
         if(this.isDragging) {
             this.scroll(-dragY);
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.scrollUpButtonArea().contains(mouseX, mouseY)) {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            this.scroll(3);
+        } else if (scrollDownButtonArea().contains(mouseX, mouseY)) {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            this.scroll(-3);
+        } else if(this.scrollHandleArea().contains(mouseX, mouseY)) {
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            this.isDragging = true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     private Rect scrollbarArea() {
@@ -103,21 +118,6 @@ public class ScrollList extends Node {
 
     private Rect scrollHandleArea() {
         return this.scrollingArea().inner(0, (int) ((double)this.getScroll() * this.ratio()), 1.0f, this.calcScrollHandleSize());
-    }
-
-    @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.scrollUpButtonArea().contains(mouseX, mouseY)) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.scroll(3);
-        } else if (scrollDownButtonArea().contains(mouseX, mouseY)) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.scroll(-3);
-        } else if(this.scrollHandleArea().contains(mouseX, mouseY)) {
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-            this.isDragging = true;
-        }
-        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
