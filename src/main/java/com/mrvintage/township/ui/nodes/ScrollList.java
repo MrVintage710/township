@@ -34,7 +34,6 @@ public class ScrollList extends Node {
             scrollHandleSprite.blit(guiGraphics, scrollHandleArea.x(), scrollHandleArea.y(), scrollHandleArea.w(), scrollHandleArea.h());
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
-        this.scrollUpButtonArea().debug(guiGraphics);
         guiGraphics.disableScissor();
 
     }
@@ -82,13 +81,13 @@ public class ScrollList extends Node {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (this.scrollUpButtonArea().contains(mouseX, mouseY)) {
+        if (this.scrollUpButtonArea().contains(mouseX, mouseY) && this.needsScrollbar()) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.scroll(3);
-        } else if (scrollDownButtonArea().contains(mouseX, mouseY)) {
+        } else if (scrollDownButtonArea().contains(mouseX, mouseY) && this.needsScrollbar()) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.scroll(-3);
-        } else if(this.scrollHandleArea().contains(mouseX, mouseY)) {
+        } else if(this.scrollHandleArea().contains(mouseX, mouseY) && this.needsScrollbar()) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             this.isDragging = true;
         }

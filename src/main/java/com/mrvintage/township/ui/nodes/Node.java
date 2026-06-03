@@ -1,6 +1,5 @@
 package com.mrvintage.township.ui.nodes;
 
-import com.mrvintage.township.Township;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;

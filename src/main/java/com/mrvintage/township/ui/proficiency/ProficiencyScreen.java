@@ -36,12 +36,7 @@ public class ProficiencyScreen extends NodeScreen {
                     new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
                     new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
                     new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode(),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
-                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16)
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode()
                 )
             );
     }

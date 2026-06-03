@@ -2,6 +2,14 @@
   "name": "Smithing",
   "id": "smithing",
   "icon": "minecraft:textures/item/cauldron.png",
+  "specialties" : [
+    {
+      "name" : "Blade Smith",
+      "tiers" : [
+
+      ]
+    }
+  ],
   "tiers": [
     {
       "name": "Novice"
