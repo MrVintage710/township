@@ -1,14 +1,17 @@
 package com.mrvintage.township.ui.proficiency;
 
+import com.mrvintage.township.Township;
 import com.mrvintage.township.ui.Sprites;
 import com.mrvintage.township.ui.nodes.BlitSpriteNode;
+import com.mrvintage.township.ui.nodes.Node;
+import com.mrvintage.township.ui.nodes.NodeScreen;
 import com.mrvintage.township.ui.nodes.ScrollList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class ProficiencyScreen extends Screen {
+public class ProficiencyScreen extends NodeScreen {
 
     private static final int bgPaddingX = 18;
     private static final int bgPaddingY = 18;
@@ -21,25 +24,26 @@ public class ProficiencyScreen extends Screen {
     }
 
     @Override
-    protected void init() {
-        this.leftPos = (this.width - Sprites.PROFICIENCIES_BG.width()) / 2;
-        this.topPos = (this.height - Sprites.PROFICIENCIES_BG.height()) / 2;
-
-        var root =
-            new BlitSpriteNode(Sprites.PROFICIENCIES_BG)
-                .withPadding(15, 15, 16, 15)
-                .withChildren(
-                    new ScrollList().withRect(0, 0, 128, 168).withPadding(1, 1).withChildren(
-                        new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode(),
-                        new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode(),
-                        new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode()
-                    )
-                );
-
-        this.renderables.add(root);
-        this.addWidget(root);
-
-//        this.addRenderableWidget(new ParchmentButton(this.leftPos, this.topPos, 128, 16, Component.literal("Test")));
+    protected Node root() {
+        return new BlitSpriteNode(Sprites.PROFICIENCIES_BG)
+            .withPadding(15, 15, 16, 15)
+            .withChildren(
+                new ScrollList().withRect(0, 0, 128, 169).withChildren(
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16).debugMode(),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16),
+                    new BlitSpriteNode(Sprites.PARCHMENT_BG).withHeight(16)
+                )
+            );
     }
 
     @Override
@@ -52,10 +56,6 @@ public class ProficiencyScreen extends Screen {
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-
-//        guiGraphics.drawString(Minecraft.getInstance().font, "Skils", leftPos + bgPaddingX, topPos + bgPaddingY, 0);
-
-//        Sprites.PARCHEMENT_BG.blit(guiGraphics, 0, 0);
     }
 
     @Override
@@ -71,5 +71,10 @@ public class ProficiencyScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 }

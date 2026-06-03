@@ -18,6 +18,53 @@ import java.util.Optional;
 @OnlyIn(Dist.CLIENT)
 public abstract class Node implements Renderable, GuiEventListener, NarratableEntry {
 
+    public record Rect(int x, int y, int w, int h) {
+        public Rect inner(int x, int y, int w, int h) {
+            return new Rect(this.x + x, this.y + y, w, h);
+        }
+
+        public Rect inner(int x, int y, float w, float h) {
+            return new Rect(this.x + x, this.y + y, (int) (this.w * w), (int) (this.h * h));
+        }
+
+        public Rect inner(int x, int y, float w, int h) {
+            return new Rect(this.x + x, this.y + y, (int) (this.w * w), h);
+        }
+
+        public Rect shrinkTop(int amount) {
+            return new Rect(this.x, this.y + amount, this.w, this.h - amount);
+        }
+
+        public Rect shrinkBottom(int amount) {
+            return new Rect(this.x, this.y, this.w, this.h - amount);
+        }
+
+        public int right() {
+            return this.x() + this.w;
+        }
+
+        public int left() {
+            return this.x();
+        }
+
+        public int top() {
+            return this.y();
+        }
+
+        public int bottom() {
+            return this.y + this.h;
+        }
+
+        public boolean contains(double x, double y) {
+            return x >= this.left() &&  x <= this.right() && y >= this.top() && y <= this.bottom();
+        }
+
+        public void debug(GuiGraphics graphics) {
+            graphics.renderOutline(this.x(), this.y(), this.w(), this.w(), FastColor.ARGB32.color(50, 0, 255, 255));
+//            graphics.drawString(Minecraft.getInstance().font, this.x() + ", " + this.y(), this.x(), this.y(), FastColor.ARGB32.color(50, 255, 0, 0));
+        }
+    }
+
     private Unit x = Unit.px(0);
     private Unit y = Unit.px(0);
     private Unit w = Unit.percent(1.0f);
@@ -26,6 +73,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     private boolean shouldDebug = false;
 
     private int pl, pr, pt, pb = 0;
+
+    private boolean isFocused = false;
 
     protected List<Node> children = new ArrayList<>();
 
@@ -199,12 +248,12 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     @Override
     public void setFocused(boolean b) {
-
+        this.isFocused = b;
     }
 
     @Override
     public boolean isFocused() {
-        return false;
+        return this.isFocused;
     }
 
     public final int x() {
@@ -312,5 +361,9 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         return mouseX >= this.left() &&  mouseX <= this.right() && mouseY >= this.top() && mouseY <= this.bottom();
+    }
+
+    public Rect rect() {
+        return new Rect(this.x(), this.y(), this.width(), this.height());
     }
 }
