@@ -1,5 +1,6 @@
 package com.mrvintage.township.ui.nodes;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -18,6 +19,17 @@ public abstract class NodeScreen extends Screen {
     protected void init() {
         this.renderables.add(this.root);
         this.addWidget(this.root);
+        this.root.layout();
+    }
+
+    protected void layout() {
+        this.root.layout();
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        this.layout();
+        super.resize(minecraft, width, height);
     }
 
     @Override

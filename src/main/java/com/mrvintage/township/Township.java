@@ -1,14 +1,14 @@
 package com.mrvintage.township;
 
-import com.mrvintage.township.event.ClientGameEvents;
+import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
-import com.mrvintage.township.proficiency.ProficiencyStats;
-import com.mrvintage.township.proficiency.ProficiencyResourceReloadListener;
+import com.mrvintage.township.event.TownshipCommands;
+import com.mrvintage.township.profession.Merit;
+import com.mrvintage.township.profession.Profession;
+import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerInventoryPatch;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.fml.loading.FMLPaths;
-import net.neoforged.neoforge.attachment.AttachmentType;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
@@ -35,9 +35,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-
-import java.util.function.Supplier;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(Township.MODID)
@@ -62,16 +59,9 @@ public class Township {
     // Creates a new Block with the id "township:example_block", combining the namespace and path
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
 
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MODID);
-
     //==================================================================================================================
     //      Attachment Types
     //==================================================================================================================
-
-    public static final Supplier<AttachmentType<Integer>> PROFICIENCY = ATTACHMENT_TYPES.register(
-            "proficiency",
-            () -> AttachmentType.serializable(() -> new ProficiencyStats()).build()
-    );
 
     // Creates a new BlockItem with the id "township:example_block", combining the namespace and path
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
@@ -103,10 +93,14 @@ public class Township {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
+        DataAttachments.ATTACHMENT_TYPES.register(modEventBus);
+
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(new ServerGameEvents());
+        NeoForge.EVENT_BUS.register(new TownshipCommands());
 //        NeoForge.EVENT_BUS.register(ClientGameEvents.class);
 //        NeoForge.EVENT_BUS.register(ClientModEvents.class);
         NeoForge.EVENT_BUS.register(PlayerInventoryPatch.class);
@@ -131,6 +125,8 @@ public class Township {
         LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
 
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
+
+        ArgumentTypeInfos.registerByClass(Merit.Path.Argument.class, new Merit.Path.ArgumentInfo());
     }
 
     // Add the example block item to the building blocks tab
@@ -140,32 +136,18 @@ public class Township {
         }
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
-
-        FMLPaths.CONFIGDIR.get();
-    }
-
     @SubscribeEvent
     public void onLivingEntityDamaged(LivingDamageEvent.Pre event) {
         if (event.getSource().getEntity() instanceof ServerPlayer player) {
-            var registry = player.serverLevel().registryAccess().registry(ServerModEvents.PROFICIENCY_REGISTRY_KEY);
+            var registry = player.serverLevel().registryAccess().registry(Profession.REGISTRY_KEY);
             player.sendSystemMessage(Component.literal("Hit!"));
             if (registry.isPresent()) {
                 var count = registry.get().keySet().stream().count();
                 player.sendSystemMessage(Component.literal(String.valueOf(count)));
                 registry.get().forEach(proficiency -> {
-                    player.sendSystemMessage(Component.literal(proficiency.getName()));
+                    player.sendSystemMessage(Component.literal(proficiency.name()));
                 });
             }
         }
-    }
-
-    @SubscribeEvent
-    public void onRegisterReloadListener(AddReloadListenerEvent event) {
-        event.addListener(new ProficiencyResourceReloadListener());
     }
 }

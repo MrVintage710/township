@@ -86,6 +86,13 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
+    public Node withChildren(List<Node> children) {
+        for (Node node : children) { node.parent = Optional.of(this); }
+        this.children.addAll(children);
+        this.layout();
+        return this;
+    }
+
     public Node withRect(Unit x, Unit y, Unit w, Unit h) {
         this.x = x;
         this.y = y;
@@ -118,6 +125,18 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public Node withPos(float x, float y) {
         this.x = Unit.percent(x);
+        this.y = Unit.percent(y);
+        return this;
+    }
+
+    public Node withPos(float x, int y) {
+        this.x = Unit.percent(x);
+        this.y = Unit.px(y);
+        return this;
+    }
+
+    public Node withPos(int x, float y) {
+        this.x = Unit.px(x);
         this.y = Unit.percent(y);
         return this;
     }
@@ -178,7 +197,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for(Node child : this.children) {
-            if (child.mouseClicked(mouseX, mouseY, button)) {
+            if (child.isMouseOver(mouseX, mouseY) && child.mouseClicked(mouseX, mouseY, button)) {
                 return true;
             }
         }
@@ -261,7 +280,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.x.calc(basis) + origin;
     }
 
-    protected final Node setX(Unit x) {
+    public final Node setX(Unit x) {
         this.x = x;
         return this;
     }
@@ -272,7 +291,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.y.calc(basis) + origin;
     }
 
-    protected final Node setY(Unit y) {
+    public final Node setY(Unit y) {
         this.y = y;
         return this;
     }
@@ -280,6 +299,10 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     public final int width() {
         int basis = this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
         return this.w.calc(basis);
+    }
+
+    public final int parentWidth() {
+        return this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
     }
 
     public final Node setWidth(Unit w) {
@@ -290,6 +313,10 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     public final int height() {
         int basis = this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
         return this.h.calc(basis);
+    }
+
+    public final int parentHeight() {
+        return this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
     }
 
     public final Node setHeight(Unit h) {

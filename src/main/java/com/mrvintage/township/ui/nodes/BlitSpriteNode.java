@@ -3,11 +3,14 @@ package com.mrvintage.township.ui.nodes;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.ui.BlitSprite;
 import com.mrvintage.township.ui.BlitSpriteScaling;
+import com.mrvintage.township.ui.Sprites;
 import net.minecraft.client.gui.GuiGraphics;
 
 public class BlitSpriteNode extends Node {
 
     private final BlitSprite blitSprite;
+
+    private boolean centered = false;
 
     public BlitSpriteNode(BlitSprite blitSprite) {
         this.blitSprite = blitSprite;
@@ -15,6 +18,20 @@ public class BlitSpriteNode extends Node {
             this.setWidth(Unit.px(blitSprite.width()));
             this.setHeight(Unit.px(blitSprite.height()));
         }
+    }
+
+    public BlitSpriteNode centered() {
+        this.centered = true;
+        return this;
+    }
+
+    @Override
+    public void layout() {
+        if (this.centered) {
+            this.setX(Unit.px((this.parentWidth() - blitSprite.width()) / 2));
+            this.setY(Unit.px((this.parentHeight() - blitSprite.height()) / 2));
+        }
+        super.layout();
     }
 
     @Override
