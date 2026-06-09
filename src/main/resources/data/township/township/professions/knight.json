@@ -1,0 +1,31 @@
+{
+  "name": "Fighting",
+  "id": "fighter",
+  "icon": "minecraft:iron_helmet",
+  "specialties" : {
+    "archer" : {
+      "name" : "Archer",
+      "icon": "minecraft:bow",
+      "merits": {
+
+        "aim_training" : {
+          "name": "Aim Training",
+          "tier": 0,
+          "icon": "minecraft:bow",
+          "xp": 100,
+          "goals": [
+            {
+              "type": "township:deal_damage",
+              "min_damage": 3,
+              "with": "#township:archery_weapon",
+              "xp": 10,
+              "max_xp": 50
+            }
+          ],
+          "reward": []
+        }
+
+      }
+    }
+  }
+}
