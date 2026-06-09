@@ -7,31 +7,23 @@ public class MeritProgress {
 
     public static final Codec<MeritProgress> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
-            Merit.Path.CODEC.fieldOf("path").forGetter(MeritProgress::getMerit),
             Codec.INT.fieldOf("xp").forGetter(MeritProgress::getXp),
             Codec.INT.fieldOf("successes").forGetter(MeritProgress::getSuccesses)
         ).apply(instance, MeritProgress::new)
     );
 
-    private final Merit.Path merit;
-
     private int xp = 0;
 
     private int successes = 0;
 
-
-    public MeritProgress(Merit.Path merit) {
-        this.merit = merit;
-    }
-
-    public MeritProgress(Merit.Path merit, int xp, int successes) {
-        this.merit = merit;
+    public MeritProgress(int xp, int successes) {
         this.xp = xp;
         this.successes = successes;
     }
 
-    public Merit.Path getMerit() {
-        return merit;
+    public MeritProgress() {
+        this.xp = 0;
+        this.successes = 0;
     }
 
     public int getXp() {
@@ -40,5 +32,25 @@ public class MeritProgress {
 
     public int getSuccesses() {
         return successes;
+    }
+
+    public MeritProgress setXp(int xp) {
+        this.xp = xp;
+        return this;
+    }
+
+    public MeritProgress setSuccesses(int successes) {
+        this.successes = successes;
+        return this;
+    }
+
+    public MeritProgress add(int xp) {
+        this.xp += xp;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "{ xp: " + xp + "}";
     }
 }

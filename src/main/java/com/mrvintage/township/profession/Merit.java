@@ -10,30 +10,29 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.mrvintage.township.event.ServerModEvents;
-import com.mrvintage.township.event.TownshipCommands;
+import com.mrvintage.township.profession.goal.Goal;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
-public record Merit(String name, int tier, ResourceLocation icon, List<Goal<?>> goals) {
+public record Merit(String name, int tier, int xp, ResourceLocation icon, @NotNull List<Goal> goals) {
     public static final Codec<Merit> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.STRING.fieldOf("name").forGetter(Merit::name),
             Codec.INT.fieldOf("tier").forGetter(Merit::tier),
+            Codec.INT.fieldOf("xp").forGetter(Merit::xp),
             ResourceLocation.CODEC.fieldOf("icon").forGetter(Merit::icon),
             Goal.CODEC.listOf().orElse(new ArrayList<>()).fieldOf("goals").forGetter(Merit::goals)
         ).apply(instance, Merit::new)

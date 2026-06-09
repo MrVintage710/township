@@ -22,7 +22,6 @@ public class DataAttachments {
     );
 
     public static ProfessionProgress getProfessionProgress(ServerPlayer player) {
-        ProfessionProgress progress = player.getData(PROFESSION_PROGRESS);
-
+        return player.getData(PROFESSION_PROGRESS);
     }
 }

@@ -5,6 +5,7 @@ import com.mrvintage.township.event.ServerModEvents;
 import com.mrvintage.township.event.TownshipCommands;
 import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
+import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerInventoryPatch;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
@@ -59,10 +60,6 @@ public class Township {
     // Creates a new Block with the id "township:example_block", combining the namespace and path
     public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
 
-    //==================================================================================================================
-    //      Attachment Types
-    //==================================================================================================================
-
     // Creates a new BlockItem with the id "township:example_block", combining the namespace and path
     public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
 
@@ -93,12 +90,13 @@ public class Township {
         // Register the Deferred Register to the mod event bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
+        Goals.DEFERRED_DISPATCH.register(modEventBus);
+
         DataAttachments.ATTACHMENT_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        NeoForge.EVENT_BUS.register(this);
         NeoForge.EVENT_BUS.register(new ServerGameEvents());
         NeoForge.EVENT_BUS.register(new TownshipCommands());
 //        NeoForge.EVENT_BUS.register(ClientGameEvents.class);
@@ -133,21 +131,6 @@ public class Township {
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
             event.accept(EXAMPLE_BLOCK_ITEM);
-        }
-    }
-
-    @SubscribeEvent
-    public void onLivingEntityDamaged(LivingDamageEvent.Pre event) {
-        if (event.getSource().getEntity() instanceof ServerPlayer player) {
-            var registry = player.serverLevel().registryAccess().registry(Profession.REGISTRY_KEY);
-            player.sendSystemMessage(Component.literal("Hit!"));
-            if (registry.isPresent()) {
-                var count = registry.get().keySet().stream().count();
-                player.sendSystemMessage(Component.literal(String.valueOf(count)));
-                registry.get().forEach(proficiency -> {
-                    player.sendSystemMessage(Component.literal(proficiency.name()));
-                });
-            }
         }
     }
 }
