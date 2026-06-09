@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public record Merit(String name, int tier, int xp, ResourceLocation icon, @NotNull List<Goal> goals) {
+public record Merit(String name, int tier, int xp, ResourceLocation icon, @NotNull List<Goal<?>> goals) {
     public static final Codec<Merit> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.STRING.fieldOf("name").forGetter(Merit::name),

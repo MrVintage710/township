@@ -1,6 +1,5 @@
 {
-  "name": "Fighting",
-  "id": "fighter",
+  "name": "Fighter",
   "icon": "minecraft:iron_helmet",
   "specialties" : {
     "archer" : {
@@ -16,8 +15,8 @@
           "goals": [
             {
               "type": "township:deal_damage",
-              "min_damage": 3,
-              "with": "#township:archery_weapon",
+              "min_damage": 5,
+              "with": "#township:archery_weapons",
               "xp": 10,
               "max_xp": 50
             }

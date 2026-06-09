@@ -45,7 +45,7 @@ public final class ProfessionProgress {
             for (Goal goal : merit.goals()) {
                 if (!goal.accepts(event)) continue;
                 var meritProgress = progress.inProgress.get(path);
-                meritProgress.add(goal.calcXp(event));
+                meritProgress.add(goal.calcXp(event, merit));
                 isDirty = true;
                 if (merit.xp() <= meritProgress.getXp()) {
                     progress.done.add(path);

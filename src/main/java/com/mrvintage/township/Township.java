@@ -2,15 +2,12 @@ package com.mrvintage.township;
 
 import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
-import com.mrvintage.township.event.TownshipCommands;
+import com.mrvintage.township.commands.TownshipCommands;
 import com.mrvintage.township.profession.Merit;
-import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerInventoryPatch;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
-import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
@@ -29,7 +26,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;

@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public record Profession(String name, String id, ResourceLocation icon, Map<String, Specialty> specialties) {
+public record Profession(String name, ResourceLocation icon, Map<String, Specialty> specialties) {
 
     public static final ResourceKey<Registry<Profession>> REGISTRY_KEY = ResourceKey.createRegistryKey(
         ResourceLocation.fromNamespaceAndPath(Township.MODID, "professions")
@@ -28,7 +28,6 @@ public record Profession(String name, String id, ResourceLocation icon, Map<Stri
     public static final Codec<Profession> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.STRING.fieldOf("name").forGetter(Profession::name),
-            Codec.STRING.fieldOf("id").forGetter(Profession::id),
             ResourceLocation.CODEC.fieldOf("icon").forGetter(Profession::icon),
             Codec.unboundedMap(Codec.STRING, Specialty.CODEC).fieldOf("specialties").forGetter(Profession::specialties)
         ).apply(instance, Profession::new)

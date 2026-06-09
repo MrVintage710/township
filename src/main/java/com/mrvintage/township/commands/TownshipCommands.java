@@ -1,10 +1,9 @@
-package com.mrvintage.township.event;
+package com.mrvintage.township.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.Merit;
-import com.mrvintage.township.profession.MeritProgress;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.profession.ProfessionProgress;
 import com.mrvintage.township.registry.DataAttachments;
@@ -21,7 +20,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 @EventBusSubscriber(modid = Township.MODID, value = Dist.DEDICATED_SERVER)
 public class TownshipCommands {
@@ -39,14 +37,16 @@ public class TownshipCommands {
                         .then(Commands.argument("player", EntityArgument.player())
                             .then(Commands.argument("meritPath", Merit.Path.arg())
                                 .executes(TownshipCommands::queryMeritProgressCommand)
-                            ).executes(TownshipCommands::queryAllMeritProgressCommand)
+                            )
+                            .executes(TownshipCommands::queryAllMeritProgressCommand)
                         )
                     )
                     .then(Commands.literal("clear")
                         .then(Commands.argument("player", EntityArgument.player())
-                            .then(Commands.argument("meritPath", Merit.Path.arg())
-                                .executes(TownshipCommands::queryMeritProgressCommand)
-                            ).executes(TownshipCommands::queryAllMeritProgressCommand)
+//                            .then(Commands.argument("meritPath", Merit.Path.arg())
+//                                .executes(TownshipCommands::queryMeritProgressCommand)
+//                            )
+                            .executes(TownshipCommands::clearAllMeritProgressCommand)
                         )
                     )
                 )
@@ -104,9 +104,9 @@ public class TownshipCommands {
 
     }
 
-    private static void clearAllMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int clearAllMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
-
-
+        ProfessionProgress.progressOf(player).clearAllMeritProgress();
+        return 0;
     }
 }

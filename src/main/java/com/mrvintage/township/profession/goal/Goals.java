@@ -13,12 +13,12 @@ import java.util.function.Supplier;
 
 public class Goals {
 
-    public static final ResourceKey<Registry<MapCodec<? extends Goal>>> DISPATCH_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Township.MODID, "goals"));
-    public static final Registry<MapCodec<? extends Goal>> DISPATCH = new RegistryBuilder<>(DISPATCH_KEY)
+    public static final ResourceKey<Registry<MapCodec<? extends Goal<?>>>> DISPATCH_KEY = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Township.MODID, "goals"));
+    public static final Registry<MapCodec<? extends Goal<?>>> DISPATCH = new RegistryBuilder<>(DISPATCH_KEY)
         .create();
 
 
-    public static final DeferredRegister<MapCodec<? extends Goal>> DEFERRED_DISPATCH = DeferredRegister.create(DISPATCH, Township.MODID);
-    public static final Supplier<MapCodec<? extends Goal>> DEAL_DAMAGE_CODEC = DEFERRED_DISPATCH.register("deal_damage", () -> DealDamage.CODEC);
+    public static final DeferredRegister<MapCodec<? extends Goal<?>>> DEFERRED_DISPATCH = DeferredRegister.create(DISPATCH, Township.MODID);
+    public static final Supplier<MapCodec<? extends Goal<?>>> DEAL_DAMAGE_CODEC = DEFERRED_DISPATCH.register("deal_damage", () -> DealDamage.CODEC);
 
 }
