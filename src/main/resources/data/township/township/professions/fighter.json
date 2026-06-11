@@ -21,7 +21,30 @@
               "max_xp": 50
             }
           ],
-          "reward": []
+          "rewards": []
+        },
+
+        "sniper_training" : {
+          "name": "Sniper Training",
+          "tier": 0,
+          "icon": "minecraft:bow",
+          "xp": 100,
+          "prereq": "township:fighter/archer/aim_training",
+          "goals": [
+            {
+              "type": "township:deal_damage",
+              "min_damage": 5,
+              "with": "#township:archery_weapons",
+              "xp": 10,
+              "max_xp": 50
+            }
+          ],
+          "rewards" : [
+            {
+              "type": "township:command",
+              "command": "say Hello World!"
+            }
+          ]
         }
 
       }

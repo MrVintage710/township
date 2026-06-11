@@ -48,8 +48,10 @@ public final class ProfessionProgress {
                 meritProgress.add(goal.calcXp(event, merit));
                 isDirty = true;
                 if (merit.xp() <= meritProgress.getXp()) {
+                    merit.rewards().forEach(reward -> reward.rewardPlayer(player));
                     progress.done.add(path);
                     progress.inProgress.remove(path);
+                    ProfessionProgress.refreshPlayerMerits(player);
                 }
             }
         }
@@ -61,7 +63,7 @@ public final class ProfessionProgress {
         var merits = Profession.allMerits(player.serverLevel());
         var progress = player.getData(DataAttachments.PROFESSION_PROGRESS);
         for(var meritEntry : merits.entrySet()) {
-            if(progress.canAdd(meritEntry.getKey())) {
+            if(progress.canAdd(meritEntry.getKey()) && meritEntry.getValue().prereqs().stream().allMatch(progress::isDone)) {
                 progress.inProgress.put(meritEntry.getKey(), new MeritProgress());
             }
         }

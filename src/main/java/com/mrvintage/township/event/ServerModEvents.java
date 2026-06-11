@@ -3,6 +3,7 @@ package com.mrvintage.township.event;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.profession.goal.Goals;
+import com.mrvintage.township.profession.reward.Rewards;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -31,5 +32,6 @@ public class ServerModEvents {
     @SubscribeEvent
     public void newRegistry(NewRegistryEvent event) {
         event.register(Goals.DISPATCH);
+        event.register(Rewards.DISPATCH);
     }
 }

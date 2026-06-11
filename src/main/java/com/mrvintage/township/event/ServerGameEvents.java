@@ -4,6 +4,7 @@ import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.*;
 import com.mrvintage.township.profession.goal.Goal;
 import com.mrvintage.township.profession.goal.Goals;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;

@@ -1,13 +1,17 @@
 package com.mrvintage.township;
 
+import com.mrvintage.township.commands.ArgumentTypes;
+import com.mrvintage.township.commands.MeritPathArgument;
 import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
 import com.mrvintage.township.commands.TownshipCommands;
 import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.goal.Goals;
+import com.mrvintage.township.profession.reward.Rewards;
 import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerInventoryPatch;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
@@ -87,8 +91,11 @@ public class Township {
         CREATIVE_MODE_TABS.register(modEventBus);
 
         Goals.DEFERRED_DISPATCH.register(modEventBus);
+        Rewards.DEFERRED_DISPATCH.register(modEventBus);
 
         DataAttachments.ATTACHMENT_TYPES.register(modEventBus);
+
+        ArgumentTypes.ARGUMENT_TYPES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
@@ -120,7 +127,7 @@ public class Township {
 
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
 
-        ArgumentTypeInfos.registerByClass(Merit.Path.Argument.class, new Merit.Path.ArgumentInfo());
+        ArgumentTypeInfos.registerByClass(MeritPathArgument.class, SingletonArgumentInfo.contextFree(MeritPathArgument::new));
     }
 
     // Add the example block item to the building blocks tab

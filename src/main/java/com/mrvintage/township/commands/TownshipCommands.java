@@ -11,20 +11,17 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.synchronization.ArgumentTypeInfo;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 @EventBusSubscriber(modid = Township.MODID, value = Dist.DEDICATED_SERVER)
 public class TownshipCommands {
-
-    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_TYPES = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Township.MODID);
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
@@ -35,7 +32,7 @@ public class TownshipCommands {
                 .then(Commands.literal("progress")
                     .then(Commands.literal("query")
                         .then(Commands.argument("player", EntityArgument.player())
-                            .then(Commands.argument("meritPath", Merit.Path.arg())
+                            .then(Commands.argument("meritPath", ResourceLocationArgument.id())
                                 .executes(TownshipCommands::queryMeritProgressCommand)
                             )
                             .executes(TownshipCommands::queryAllMeritProgressCommand)
@@ -43,9 +40,9 @@ public class TownshipCommands {
                     )
                     .then(Commands.literal("clear")
                         .then(Commands.argument("player", EntityArgument.player())
-//                            .then(Commands.argument("meritPath", Merit.Path.arg())
-//                                .executes(TownshipCommands::queryMeritProgressCommand)
-//                            )
+                            .then(Commands.argument("meritPath", ResourceLocationArgument.id())
+                                .executes(TownshipCommands::clearMeritProgressCommand)
+                            )
                             .executes(TownshipCommands::clearAllMeritProgressCommand)
                         )
                     )
@@ -65,7 +62,8 @@ public class TownshipCommands {
 
     private static int queryMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
-        Merit.Path meritPath = context.getArgument("meritPath", Merit.Path.class);
+        ResourceLocation resourceLocation = context.getArgument("meritPath", ResourceLocation.class);
+        Merit.Path meritPath = Merit.Path.from(resourceLocation);
 
         if (player.hasData(DataAttachments.PROFESSION_PROGRESS)) {
             printProgress(player, meritPath);
@@ -107,6 +105,16 @@ public class TownshipCommands {
     private static int clearAllMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         ProfessionProgress.progressOf(player).clearAllMeritProgress();
+        ProfessionProgress.refreshPlayerMerits(player);
+        return 0;
+    }
+
+    private static int clearMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        ResourceLocation resourceLocation = context.getArgument("meritPath", ResourceLocation.class);
+        Merit.Path meritPath = Merit.Path.from(resourceLocation);
+        ProfessionProgress.progressOf(player).clearMeritProgress(meritPath);
+        ProfessionProgress.refreshPlayerMerits(player);
         return 0;
     }
 }
