@@ -11,12 +11,12 @@ import java.util.function.Supplier;
 
 public class DataAttachments {
 
-    public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(
+    public static final DeferredRegister<AttachmentType<?>> REGISTRY = DeferredRegister.create(
             NeoForgeRegistries.ATTACHMENT_TYPES,
             Township.MODID
     );
 
-    public static final Supplier<AttachmentType<ProfessionProgress>> PROFESSION_PROGRESS = DataAttachments.ATTACHMENT_TYPES.register(
+    public static final Supplier<AttachmentType<ProfessionProgress>> PROFESSION_PROGRESS = DataAttachments.REGISTRY.register(
         "profession_progress",
         () -> AttachmentType.builder(() -> new ProfessionProgress()).serialize(ProfessionProgress.CODEC).copyOnDeath().build()
     );

@@ -6,11 +6,17 @@ import net.minecraft.resources.ResourceLocation;
 public class Sprites {
 
     public static final BlitSprite PROFICIENCIES_FULL = new BlitSprite(
-            ResourceLocation.fromNamespaceAndPath(Township.MODID, "textures/gui/proficiencies.png"),
+            ResourceLocation.fromNamespaceAndPath(Township.MODID, "textures/gui/profession_menu.png"),
             512, 512
     );
 
     public static final BlitSprite PROFICIENCIES_BG = PROFICIENCIES_FULL.slice(36, 4, 296, 201);
+    public static final BlitSprite TORN_PAPER_BG = PROFICIENCIES_FULL.slice(347, 38, 58, 36,
+        new BlitSpriteScaling.NineSlice(10, 10, 10, 10)
+    );
+    public static final BlitSprite BOOKMARK_RIGHT = PROFICIENCIES_FULL.slice(419, 0, 34, 18,
+        new BlitSpriteScaling.NineSlice(1, 15, 8, 8)
+    );
 
     public static final BlitSprite PROFIENCIES_BUTTON = PROFICIENCIES_FULL.slice(398, 0, 20, 18);
     public static final BlitSprite PROFIENCIES_BUTTON_HOVER = PROFICIENCIES_FULL.slice(398, 19, 20, 18);
@@ -31,5 +37,5 @@ public class Sprites {
     public static final BlitSprite SEWN_BORDER_HOVER = PROFICIENCIES_FULL.slice(332, 18, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
 
     public static final BlitSprite BOOKMARK_LEFT = PROFICIENCIES_FULL.slice(419, 19, 34, 18, new BlitSpriteScaling.NineSlice(15, 1, 8, 8));
-    public static final BlitSprite BOOKMARK_RIGHT = PROFICIENCIES_FULL.slice(419, 0, 34, 18, new BlitSpriteScaling.NineSlice(1, 15, 8, 8));
+
 }

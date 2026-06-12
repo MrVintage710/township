@@ -9,8 +9,7 @@ import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 //@EventBusSubscriber(modid = Township.MODID, value = Dist.CLIENT)
 public class ClientModEvents {
 
-//    @SubscribeEvent // on the mod event bus only on the physical client
-//    public static void registerScreens(RegisterMenuScreensEvent event) {
-//        event.register(MY_MENU.get(), MyContainerScreen::new);
-//    }
+
+
+
 }

@@ -6,9 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrvintage.township.profession.goal.Goal;
 import com.mrvintage.township.profession.reward.Reward;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,6 +42,11 @@ public record Merit(
             Reward.CODEC.listOf().orElse(new ArrayList<>()).fieldOf("rewards").forGetter(Merit::rewards)
         ).apply(instance, Merit::new)
     );
+
+    public void renderIcon(GuiGraphics graphics, int x, int y) {
+        Item item = BuiltInRegistries.ITEM.get(this.icon());
+        graphics.renderItem(new ItemStack(item, 1), x, y);
+    }
 
     public record Path(ResourceLocation file, String speciality, String merit) {
 

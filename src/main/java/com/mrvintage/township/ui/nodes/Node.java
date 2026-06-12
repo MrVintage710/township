@@ -109,6 +109,14 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
+    public Node withRect(float x, int y, float w, int h) {
+        this.x = Unit.percent(x);
+        this.y = Unit.px(y);
+        this.w = Unit.percent(w);
+        this.h = Unit.px(h);
+        return this;
+    }
+
     public Node withPos(int x, int y) {
         this.x = Unit.px(x);
         this.y = Unit.px(y);
@@ -275,7 +283,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int x() {
-        int basis = this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
+        return this.x(Minecraft.getInstance().screen.width);
+    }
+
+    public final int x(int defaultBasis) {
+        int basis = this.parent.map(Node::getHorizontalBasis).orElse(defaultBasis);
         int origin = this.parent.map(Node::x).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0);
         return this.x.calc(basis) + origin;
     }
@@ -286,7 +298,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int y() {
-        int basis = this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
+        return this.y(Minecraft.getInstance().screen.height);
+    }
+
+    public final int y(int defaultBasis) {
+        int basis = this.parent.map(Node::getVerticalBasis).orElse(defaultBasis);
         int origin = this.parent.map(Node::y).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0);
         return this.y.calc(basis) + origin;
     }
@@ -297,7 +313,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int width() {
-        int basis = this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
+        return this.width(Minecraft.getInstance().screen.width);
+    }
+
+    public final int width(int defaultBasis) {
+        int basis = this.parent.map(Node::getHorizontalBasis).orElse(defaultBasis);
         return this.w.calc(basis);
     }
 
@@ -305,13 +325,27 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
     }
 
-    public final Node setWidth(Unit w) {
+    public final Node withWidth(Unit w) {
         this.w = w;
         return this;
     }
 
+    public final Node withWidth(int w) {
+        this.w = Unit.px(w);
+        return this;
+    }
+
+    public final Node withWidth(float w) {
+        this.w = Unit.percent(w);
+        return this;
+    }
+
     public final int height() {
-        int basis = this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
+        return this.height(Minecraft.getInstance().screen.height);
+    }
+
+    public final int height(int defaultBasis) {
+        int basis = this.parent.map(Node::getVerticalBasis).orElse(defaultBasis);
         return this.h.calc(basis);
     }
 
@@ -319,7 +353,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
     }
 
-    public final Node setHeight(Unit h) {
+    public final Node withHeight(Unit h) {
         this.h = h;
         return this;
     }

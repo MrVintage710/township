@@ -10,9 +10,9 @@ import java.util.function.Supplier;
 
 public class ArgumentTypes {
 
-    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> ARGUMENT_TYPES = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Township.MODID);
+    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> REGISTRY = DeferredRegister.create(BuiltInRegistries.COMMAND_ARGUMENT_TYPE, Township.MODID);
 
-    public static final Supplier<ArgumentTypeInfo<?, ?>> MERIT_PATH_ARGUMENT_TYPE = ARGUMENT_TYPES.register(
+    public static final Supplier<ArgumentTypeInfo<?, ?>> MERIT_PATH_ARGUMENT_TYPE = REGISTRY.register(
         "merit_path",
         () -> SingletonArgumentInfo.contextFree(MeritPathArgument::new)
     );

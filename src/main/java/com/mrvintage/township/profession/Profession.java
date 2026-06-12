@@ -44,6 +44,21 @@ public record Profession(String name, ResourceLocation icon, Map<String, Special
         return profession.getMerit(path);
     }
 
+    @OnlyIn(Dist.CLIENT)
+    @Nullable
+    public static Merit findMerit(Merit.Path path) {
+        var connection = Minecraft.getInstance().getConnection();
+        if(connection == null) return null;
+
+        var registry = connection.registryAccess().registry(Profession.REGISTRY_KEY);
+        if(registry.isEmpty()) return null;
+
+        var profession = registry.get().get(path.file());
+        if(profession == null) return null;
+
+        return profession.getMerit(path);
+    }
+
     @Nullable
     public Merit getMerit(Merit.Path path) {
         if (this.specialties.containsKey(path.speciality())) {

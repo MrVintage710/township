@@ -1,0 +1,8 @@
+{
+  "level_up": {
+    "subtitle": "sounds.township.level_up",
+    "sounds" : [
+      "township:level_up"
+    ]
+  }
+}

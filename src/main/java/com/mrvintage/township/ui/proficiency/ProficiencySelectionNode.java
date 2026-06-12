@@ -27,7 +27,7 @@ public class ProficiencySelectionNode extends Node {
 
     @Override
     public void layout() {
-        this.setHeight(Unit.px(18));
+        this.withHeight(Unit.px(18));
         super.layout();
     }
 

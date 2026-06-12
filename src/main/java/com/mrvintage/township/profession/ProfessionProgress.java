@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrvintage.township.profession.goal.Goal;
 import com.mrvintage.township.registry.DataAttachments;
+import com.mrvintage.township.ui.PlayerOverlayPatch;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.Event;
 
@@ -45,12 +46,15 @@ public final class ProfessionProgress {
             for (Goal goal : merit.goals()) {
                 if (!goal.accepts(event)) continue;
                 var meritProgress = progress.inProgress.get(path);
-                meritProgress.add(goal.calcXp(event, merit));
+                int xp = goal.calcXp(event, merit);
+                PlayerOverlayPatch.enqueueXpNotification(path, xp);
+                meritProgress.add(xp);
                 isDirty = true;
                 if (merit.xp() <= meritProgress.getXp()) {
                     merit.rewards().forEach(reward -> reward.rewardPlayer(player));
                     progress.done.add(path);
                     progress.inProgress.remove(path);
+                    PlayerOverlayPatch.enqueueMeritCompleteNotification(path);
                     ProfessionProgress.refreshPlayerMerits(player);
                 }
             }

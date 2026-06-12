@@ -5,13 +5,15 @@ import com.mrvintage.township.commands.MeritPathArgument;
 import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
 import com.mrvintage.township.commands.TownshipCommands;
-import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.profession.reward.Rewards;
 import com.mrvintage.township.registry.DataAttachments;
+import com.mrvintage.township.sound.Sounds;
 import com.mrvintage.township.ui.PlayerInventoryPatch;
+import com.mrvintage.township.ui.PlayerOverlayPatch;
 import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.registries.*;
 import org.slf4j.Logger;
 
@@ -81,6 +83,7 @@ public class Township {
     public Township(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::clientSetup);
         modEventBus.register(new ServerModEvents());
 
         // Register the Deferred Register to the mod event bus so blocks get registered
@@ -93,9 +96,11 @@ public class Township {
         Goals.DEFERRED_DISPATCH.register(modEventBus);
         Rewards.DEFERRED_DISPATCH.register(modEventBus);
 
-        DataAttachments.ATTACHMENT_TYPES.register(modEventBus);
+        DataAttachments.REGISTRY.register(modEventBus);
 
-        ArgumentTypes.ARGUMENT_TYPES.register(modEventBus);
+        ArgumentTypes.REGISTRY.register(modEventBus);
+
+        Sounds.REGISTRY.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in.
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
@@ -105,6 +110,7 @@ public class Township {
 //        NeoForge.EVENT_BUS.register(ClientGameEvents.class);
 //        NeoForge.EVENT_BUS.register(ClientModEvents.class);
         NeoForge.EVENT_BUS.register(PlayerInventoryPatch.class);
+        modEventBus.register(PlayerOverlayPatch.class);
 
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
@@ -112,6 +118,11 @@ public class Township {
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
 
+
+    }
+
+
+    private void clientSetup(FMLClientSetupEvent event) {
 
     }
 

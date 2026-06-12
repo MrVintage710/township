@@ -36,8 +36,8 @@ public class ProficiencyTab extends Node {
 
     @Override
     public void layout() {
-        this.setHeight(Unit.px(18));
-        this.setWidth(Unit.px(16));
+        this.withHeight(Unit.px(18));
+        this.withWidth(Unit.px(16));
         super.layout();
     }
 
