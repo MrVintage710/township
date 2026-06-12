@@ -1,5 +1,6 @@
 package com.mrvintage.township.commands;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mrvintage.township.Township;
@@ -21,7 +22,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 @EventBusSubscriber(modid = Township.MODID, value = Dist.DEDICATED_SERVER)
-public class TownshipCommands {
+public class ModCommands {
 
     @SubscribeEvent
     public void onRegisterCommands(RegisterCommandsEvent event) {
@@ -33,17 +34,27 @@ public class TownshipCommands {
                     .then(Commands.literal("query")
                         .then(Commands.argument("player", EntityArgument.player())
                             .then(Commands.argument("meritPath", ResourceLocationArgument.id())
-                                .executes(TownshipCommands::queryMeritProgressCommand)
+                                .executes(ModCommands::queryMeritProgressCommand)
                             )
-                            .executes(TownshipCommands::queryAllMeritProgressCommand)
+                            .executes(ModCommands::queryAllMeritProgressCommand)
                         )
                     )
                     .then(Commands.literal("clear")
+                        .executes(ModCommands::clearAllMeritProgressFromSelfCommand)
                         .then(Commands.argument("player", EntityArgument.player())
                             .then(Commands.argument("meritPath", ResourceLocationArgument.id())
-                                .executes(TownshipCommands::clearMeritProgressCommand)
+                                .executes(ModCommands::clearMeritProgressFromPlayerCommand)
                             )
-                            .executes(TownshipCommands::clearAllMeritProgressCommand)
+                            .executes(ModCommands::clearAllMeritProgressFromPlayerCommand)
+                        )
+                    )
+                    .then(Commands.literal("grant")
+                        .then(Commands.argument("player", EntityArgument.player())
+                            .then(Commands.argument("meritPath", ResourceLocationArgument.id())
+                                .then(Commands.argument("isFake", BoolArgumentType.bool())
+                                    .executes(ModCommands::grantMeritToPlayerFake)
+                                ).executes(ModCommands::grantMeritToPlayer)
+                            )
                         )
                     )
                 )
@@ -102,19 +113,56 @@ public class TownshipCommands {
 
     }
 
-    private static int clearAllMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int clearAllMeritProgressFromSelfCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        if(!(context.getSource().getEntity() instanceof ServerPlayer player)) return 1;
+        ProfessionProgress.progressOf(player).clearAllMeritProgress();
+        ProfessionProgress.refreshPlayerMerits(player);
+        return 0;
+    }
+
+    private static int clearAllMeritProgressFromPlayerCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         ProfessionProgress.progressOf(player).clearAllMeritProgress();
         ProfessionProgress.refreshPlayerMerits(player);
         return 0;
     }
 
-    private static int clearMeritProgressCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+    private static int clearMeritProgressFromPlayerCommand(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerPlayer player = EntityArgument.getPlayer(context, "player");
         ResourceLocation resourceLocation = context.getArgument("meritPath", ResourceLocation.class);
         Merit.Path meritPath = Merit.Path.from(resourceLocation);
         ProfessionProgress.progressOf(player).clearMeritProgress(meritPath);
         ProfessionProgress.refreshPlayerMerits(player);
         return 0;
+    }
+
+    private static int grantMeritToPlayer(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        ResourceLocation resourceLocation = context.getArgument("meritPath", ResourceLocation.class);
+        Merit.Path path = Merit.Path.from(resourceLocation);
+        if(path == null) return 1;
+        if(context.getSource().getEntity() instanceof ServerPlayer caller && !caller.is(player)) {
+            caller.sendSystemMessage(Component.literal(player.getDisplayName().getString() + " has been awarded `" + path + "`"));
+        }
+        innerGrantMeritToPlayer(path, player, false);
+        return 0;
+    }
+
+    private static int grantMeritToPlayerFake(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ServerPlayer player = EntityArgument.getPlayer(context, "player");
+        ResourceLocation resourceLocation = context.getArgument("meritPath", ResourceLocation.class);
+        boolean isFake = context.getArgument("isFake", boolean.class);
+        Merit.Path path = Merit.Path.from(resourceLocation);
+        if(path == null) return 1;
+        if(context.getSource().getEntity() instanceof ServerPlayer caller && !caller.is(player)) {
+            caller.sendSystemMessage(Component.literal(player.getDisplayName().getString() + " has been awarded `" + path + "`"));
+        }
+        innerGrantMeritToPlayer(path, player, isFake);
+        return 0;
+    }
+
+    private static void innerGrantMeritToPlayer(Merit.Path merit, ServerPlayer player, boolean isFake) {
+        ProfessionProgress progress = ProfessionProgress.progressOf(player);
+        progress.awardMerit(merit, player, isFake);
     }
 }

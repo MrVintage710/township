@@ -51,11 +51,7 @@ public final class ProfessionProgress {
                 meritProgress.add(xp);
                 isDirty = true;
                 if (merit.xp() <= meritProgress.getXp()) {
-                    merit.rewards().forEach(reward -> reward.rewardPlayer(player));
-                    progress.done.add(path);
-                    progress.inProgress.remove(path);
-                    PlayerOverlayPatch.enqueueMeritCompleteNotification(path);
-                    ProfessionProgress.refreshPlayerMerits(player);
+                    progress.awardMerit(path, player, merit);
                 }
             }
         }
@@ -121,6 +117,25 @@ public final class ProfessionProgress {
         paths.addAll(inProgress.keySet());
         paths.addAll(done);
         return paths;
+    }
+
+    public void awardMerit(Merit.Path meritPath, ServerPlayer player) {
+        this.awardMerit(meritPath, player, false);
+    }
+
+    public void awardMerit(Merit.Path meritPath, ServerPlayer player, boolean isFake) {
+        if (!isFake) {
+            this.done.add(meritPath);
+            this.inProgress.remove(meritPath);
+            ProfessionProgress.refreshPlayerMerits(player);
+        }
+
+        PlayerOverlayPatch.enqueueMeritCompleteNotification(meritPath);
+    }
+
+    public void awardMerit(Merit.Path meritPath, ServerPlayer player, Merit merit) {
+        merit.rewards().forEach(reward -> reward.rewardPlayer(player));
+        this.awardMerit(meritPath, player, false);
     }
 
     @Override

@@ -86,7 +86,7 @@ public class PlayerOverlayPatch {
 
     private static class MeritCompleteNotification {
 
-        private final Node overlay = new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 22);
+        private final Node overlay = new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42);
 
         private float time = 0f;
         private final Merit.Path path;

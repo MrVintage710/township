@@ -4,7 +4,7 @@ import com.mrvintage.township.commands.ArgumentTypes;
 import com.mrvintage.township.commands.MeritPathArgument;
 import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
-import com.mrvintage.township.commands.TownshipCommands;
+import com.mrvintage.township.commands.ModCommands;
 import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.profession.reward.Rewards;
 import com.mrvintage.township.registry.DataAttachments;
@@ -106,7 +106,7 @@ public class Township {
         // Note that this is necessary if and only if we want *this* class (Township) to respond directly to events.
         // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
         NeoForge.EVENT_BUS.register(new ServerGameEvents());
-        NeoForge.EVENT_BUS.register(new TownshipCommands());
+        NeoForge.EVENT_BUS.register(new ModCommands());
 //        NeoForge.EVENT_BUS.register(ClientGameEvents.class);
 //        NeoForge.EVENT_BUS.register(ClientModEvents.class);
         NeoForge.EVENT_BUS.register(PlayerInventoryPatch.class);
