@@ -6,7 +6,9 @@ import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.sound.Sounds;
 import com.mrvintage.township.ui.nodes.BlitSpriteNode;
+import com.mrvintage.township.ui.nodes.IconNode;
 import com.mrvintage.township.ui.nodes.Node;
+import com.mrvintage.township.ui.nodes.Unit;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -86,7 +88,12 @@ public class PlayerOverlayPatch {
 
     private static class MeritCompleteNotification {
 
-        private final Node overlay = new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42);
+        private final Node overlay =
+            new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42).withChildren(
+                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(10, basis -> basis / 2 - 9, 18, 18).withChildren(
+                    new IconNode().withRect(1, 1, 16, 16)
+                )
+            );
 
         private float time = 0f;
         private final Merit.Path path;

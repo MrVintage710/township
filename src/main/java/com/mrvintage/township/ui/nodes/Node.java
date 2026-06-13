@@ -13,6 +13,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Node implements Renderable, GuiEventListener, NarratableEntry {
@@ -112,6 +113,22 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     public Node withRect(float x, int y, float w, int h) {
         this.x = Unit.percent(x);
         this.y = Unit.px(y);
+        this.w = Unit.percent(w);
+        this.h = Unit.px(h);
+        return this;
+    }
+
+    public Node withRect(int x, float y, int w, float h) {
+        this.x = Unit.px(x);
+        this.y = Unit.percent(y);
+        this.w = Unit.px(w);
+        this.h = Unit.percent(h);
+        return this;
+    }
+
+    public Node withRect(float x, Unit y, float w, int h) {
+        this.x = Unit.percent(x);
+        this.y = y;
         this.w = Unit.percent(w);
         this.h = Unit.px(h);
         return this;
@@ -287,8 +304,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int x(int defaultBasis) {
-        int basis = this.parent.map(Node::getHorizontalBasis).orElse(defaultBasis);
-        int origin = this.parent.map(Node::x).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0);
+        int basis = this.parent.map(parent -> parent.getHorizontalBasis(defaultBasis)).orElse(defaultBasis);
+        int origin = this.parent.map(p -> p.x(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0);
         return this.x.calc(basis) + origin;
     }
 
@@ -302,8 +319,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int y(int defaultBasis) {
-        int basis = this.parent.map(Node::getVerticalBasis).orElse(defaultBasis);
-        int origin = this.parent.map(Node::y).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0);
+        int basis = this.parent.map(parent -> parent.getVerticalBasis(defaultBasis)).orElse(defaultBasis);
+        int origin = this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0);
         return this.y.calc(basis) + origin;
     }
 
@@ -394,8 +411,16 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.width() - pl - pr;
     }
 
+    public int getHorizontalBasis(int defaultBasis) {
+        return this.width(defaultBasis) - pl - pr;
+    }
+
     public int getVerticalBasis() {
         return this.height() - pt - pb;
+    }
+
+    public int getVerticalBasis(int defaultBasis) {
+        return this.height(defaultBasis) - pt - pb;
     }
 
     @Override
