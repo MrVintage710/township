@@ -3,7 +3,8 @@
   "package": "com.mrvintage.township.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-
+    "MeritServerPlayerMixin",
+    "MeritRecipeBookMixin"
   ],
   "injectors": {
     "defaultRequire": 1

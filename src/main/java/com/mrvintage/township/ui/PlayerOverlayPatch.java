@@ -5,14 +5,13 @@ import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.sound.Sounds;
-import com.mrvintage.township.ui.nodes.BlitSpriteNode;
-import com.mrvintage.township.ui.nodes.IconNode;
-import com.mrvintage.township.ui.nodes.Node;
-import com.mrvintage.township.ui.nodes.Unit;
+import com.mrvintage.township.ui.nodes.*;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
@@ -26,7 +25,7 @@ import java.util.List;
 @EventBusSubscriber(modid = Township.MODID, value = Dist.CLIENT)
 public class PlayerOverlayPatch {
     private static final float XP_NOTIFICATION_LIFETIME = 60f;
-    private static final float MERIT_COMPLETE_NOTIFICATION_LIFETIME = 60f;
+    private static final float MERIT_COMPLETE_NOTIFICATION_LIFETIME = 180f;
 
     private static final List<XpNotification> XP_NOTIFICATIONS = new ArrayList<>();
     private static final List<MeritCompleteNotification> MERIT_COMPLETE_NOTIFICATIONS = new ArrayList<>();
@@ -88,10 +87,20 @@ public class PlayerOverlayPatch {
 
     private static class MeritCompleteNotification {
 
+        private IconNode icon = (IconNode) new IconNode().withRect(3, 3, 16, 16);
+
+        private TextNode text = (TextNode) new TextNode("Merit Completed!").withRect(Unit.px(0), Unit.px(0),  Unit.percent(1.0f), Unit.px(9));
+
         private final Node overlay =
             new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42).withChildren(
-                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(10, basis -> basis / 2 - 9, 18, 18).withChildren(
-                    new IconNode().withRect(1, 1, 16, 16)
+                new Node().withRect(Unit.px(10), basis -> (basis / 2) - 11, Unit.percent(1.0f), Unit.px(22)).withChildren(
+                    new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(0, 0, 22, 22).withChildren(
+                        icon
+                    ),
+                    new SeriesNode().withGap(1).withPos(24, 0).withChildren(
+                        text,
+                        new TextNode("complete!")
+                    )
                 )
             );
 
@@ -105,6 +114,26 @@ public class PlayerOverlayPatch {
         public boolean render(GuiGraphics graphics, DeltaTracker deltaTracker) {
             var merit = Profession.findMerit(path);
             if(merit == null || this.time >= MERIT_COMPLETE_NOTIFICATION_LIFETIME) return true;
+
+            Node overlay = new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42).withChildren(
+                new Node().withRect(Unit.px(10), basis -> (basis / 2) - 11, Unit.percent(1.0f), Unit.percent(1.0f)).withChildren(
+                    new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(0, 0, 22, 22).withChildren(
+                        icon
+                    ),
+                    new SeriesNode().withGap(4).withPos(24, 0).withChildren(
+                        text,
+                        new TextNode(Component.literal("complete!"))
+                    ),
+                    new TextNode("Open your journal for your rewards!").withRect(Unit.px(24), Unit.px(12), basis -> basis - 24, Unit.px(16))
+                )
+            );
+
+            overlay.setDefaultSize(graphics);
+
+            icon.setIcon(merit.icon());
+            text.setTextComponent(
+                Component.literal(merit.name()).withStyle(ChatFormatting.BOLD, ChatFormatting.GOLD)
+            );
 
             overlay.render(graphics, 0, 0, deltaTracker.getRealtimeDeltaTicks());
 

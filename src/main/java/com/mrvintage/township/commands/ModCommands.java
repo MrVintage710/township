@@ -55,7 +55,17 @@ public class ModCommands {
                                     .executes(ModCommands::grantMeritToPlayerFake)
                                 ).executes(ModCommands::grantMeritToPlayer)
                             )
-                        )
+                        ).executes(context -> {
+                            if(context.getSource().getEntity() instanceof ServerPlayer player) {
+                                ProfessionProgress.progressOf(player).awardMerit(
+                                    Merit.Path.from("township:fighter/archer/aim_training"),
+                                    player,
+                                    true
+                                );
+                            }
+
+                            return 0;
+                        })
                     )
                 )
         );
