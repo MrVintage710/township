@@ -59,6 +59,8 @@ public final class ProfessionProgress {
         if(isDirty) player.setData(DataAttachments.PROFESSION_PROGRESS, progress);
     }
 
+    /// This method will check if there are any merits that a player can start on, and adds them to in-progress merits.
+    /// Should be called on entering and whenever a merit is achieved.
     public static void refreshPlayerMerits(ServerPlayer player) {
         var merits = Profession.allMerits(player.serverLevel());
         var progress = player.getData(DataAttachments.PROFESSION_PROGRESS);

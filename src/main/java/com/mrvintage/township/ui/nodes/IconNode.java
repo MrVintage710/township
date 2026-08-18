@@ -1,5 +1,6 @@
 package com.mrvintage.township.ui.nodes;
 
+import com.mrvintage.township.Township;
 import com.mrvintage.township.ui.BlitSprite;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,10 +24,19 @@ public class IconNode extends Node {
         if(icon == null) return;
         if(BuiltInRegistries.ITEM.containsKey(icon)) {
             Item item = BuiltInRegistries.ITEM.get(this.icon);
-            guiGraphics.renderItem(new ItemStack(item), this.x(guiGraphics.guiWidth()), this.y(guiGraphics.guiHeight()));
+            guiGraphics.renderItem(new ItemStack(item), this.x(), this.y());
         } else {
-            guiGraphics.blit(icon, x, y, w, h, 0, 0, w, h);
+            guiGraphics.blit(icon, x, y, 0, 0, w, h, w, h);
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
+    }
+
+    public ResourceLocation getIcon() {
+        return icon;
+    }
+
+    public IconNode setIcon(ResourceLocation icon) {
+        this.icon = icon;
+        return this;
     }
 }

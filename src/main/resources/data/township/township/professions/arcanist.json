@@ -1,0 +1,41 @@
+{
+  "name": "Arcanist",
+  "icon": "minecraft:amethyst_shard",
+  "specialties" : {
+    "wizard" : {
+      "name" : "Wizard",
+      "icon": "minecraft:book",
+      "merits": {
+
+        "simple_spellcasting" : {
+          "name": "Simple Spellcasting",
+          "tier": 0,
+          "icon": "minecraft:book",
+          "xp": 100,
+          "goals": [
+            {
+              "type": "township:deal_damage",
+              "min_damage": 5,
+              "with": "minecraft:stone_sword",
+              "xp": 10,
+              "max_xp": 50
+            }
+          ],
+          "rewards": [
+            {
+              "type": "township:command",
+              "command": "say You leveled up Simple Spellcasting!"
+            }
+          ]
+        }
+
+      },
+      "sage" : {
+        "name": "Sage",
+        "icon": "minecraft:stick",
+        "merits": {
+        }
+      }
+    }
+  }
+}

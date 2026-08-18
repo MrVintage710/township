@@ -14,7 +14,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -89,9 +88,9 @@ public class PlayerOverlayPatch {
     private static class MeritCompleteNotification {
 
         private final Node overlay =
-            new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 42).withChildren(
-                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(10, basis -> basis / 2 - 9, 18, 18).withChildren(
-                    new IconNode().withRect(1, 1, 16, 16)
+            new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 44).withId("0").withChildren(
+                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(Unit.px(10), basis -> basis / 2 - 11, Unit.px(22), Unit.px(22)).withId("1").withChildren(
+                    new IconNode().withRect(3, 3, 16, 16).withId("icon")
                 )
             );
 
@@ -99,6 +98,13 @@ public class PlayerOverlayPatch {
         private final Merit.Path path;
 
         public MeritCompleteNotification(Merit.Path path) {
+            var merit = Profession.findMerit(path);
+
+            overlay.getNodeWithId("icon").ifPresent(icon -> {
+                Township.LOGGER.info("FOUND ICON!");
+                ((IconNode) icon).setIcon(merit.icon());
+            });
+
             this.path = path;
         }
 

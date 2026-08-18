@@ -13,7 +13,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public abstract class Node implements Renderable, GuiEventListener, NarratableEntry {
@@ -75,6 +74,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     private int pl, pr, pt, pb = 0;
 
     private boolean isFocused = false;
+
+    private Optional<String> id = Optional.empty();
 
     protected List<Node> children = new ArrayList<>();
 
@@ -198,6 +199,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
+    public Node withId(String id) {
+        this.id = Optional.of(id);
+        return this;
+    }
+
     public void layout() {
         for (Node child : children) {
             child.layout();
@@ -300,7 +306,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int x() {
-        return this.x(Minecraft.getInstance().screen.width);
+        return this.x(Node.getDefaultContextWidth());
     }
 
     public final int x(int defaultBasis) {
@@ -315,7 +321,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int y() {
-        return this.y(Minecraft.getInstance().screen.height);
+        return this.y(Node.getDefaultContextHeight());
     }
 
     public final int y(int defaultBasis) {
@@ -330,7 +336,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int width() {
-        return this.width(Minecraft.getInstance().screen.width);
+        return this.width(Node.getDefaultContextWidth());
     }
 
     public final int width(int defaultBasis) {
@@ -339,7 +345,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int parentWidth() {
-        return this.parent.map(Node::getHorizontalBasis).orElse(Minecraft.getInstance().screen.width);
+        return this.parent.map(Node::getHorizontalBasis).orElse(Node.getDefaultContextWidth());
     }
 
     public final Node withWidth(Unit w) {
@@ -358,7 +364,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int height() {
-        return this.height(Minecraft.getInstance().screen.height);
+        return this.height(Node.getDefaultContextHeight());
     }
 
     public final int height(int defaultBasis) {
@@ -367,7 +373,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int parentHeight() {
-        return this.parent.map(Node::getVerticalBasis).orElse(Minecraft.getInstance().screen.height);
+        return this.parent.map(Node::getVerticalBasis).orElse(Node.getDefaultContextHeight());
     }
 
     public final Node withHeight(Unit h) {
@@ -423,6 +429,19 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.height(defaultBasis) - pt - pb;
     }
 
+    public Optional<Node> getNodeWithId(String id) {
+        if (this.id.isPresent() && this.id.get().equals(id)) {
+            return Optional.of( this );
+        }
+
+        for (Node child : this.children) {
+            var result = child.getNodeWithId(id);
+            if (result.isPresent()) { return result; }
+        }
+
+        return Optional.empty();
+    }
+
     @Override
     public NarrationPriority narrationPriority() {
         return NarrationPriority.NONE;
@@ -435,7 +454,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     private void debug(GuiGraphics graphics) {
         graphics.renderOutline(this.x(), this.y(), this.width(), this.height(), FastColor.ARGB32.color(50, 255, 0, 0));
-        graphics.drawString(Minecraft.getInstance().font, this.x() + ", " + this.y(), this.x(), this.y(), FastColor.ARGB32.color(50, 255, 0, 0));
+        graphics.drawString(Minecraft.getInstance().font, this.x() + ", " + this.y() + " " + this.id.orElse(""), this.x(), this.y(), FastColor.ARGB32.color(50, 255, 0, 0));
     }
 
     public Node debugMode() {
@@ -450,5 +469,13 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public Rect rect() {
         return new Rect(this.x(), this.y(), this.width(), this.height());
+    }
+
+    public static int getDefaultContextWidth() {
+        return Optional.ofNullable(Minecraft.getInstance().screen).map(screen -> screen.width).orElse(Minecraft.getInstance().getWindow().getGuiScaledWidth());
+    }
+
+    public static int getDefaultContextHeight() {
+        return Optional.ofNullable(Minecraft.getInstance().screen).map(screen -> screen.height).orElse(Minecraft.getInstance().getWindow().getGuiScaledHeight());
     }
 }
