@@ -1,6 +1,5 @@
 package com.mrvintage.township.ui.nodes;
 
-import com.mrvintage.township.Township;
 import com.mrvintage.township.ui.BlitSprite;
 import com.mrvintage.township.ui.BlitSpriteScaling;
 import net.minecraft.client.gui.GuiGraphics;
@@ -35,9 +34,8 @@ public class BlitSpriteNode extends Node {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        if(this.shouldDebug)
-            Township.LOGGER.info("");
-        blitSprite.blit(guiGraphics, this.x(), this.y(), this.width(), this.height());
+//        Township.LOGGER.info("{}", this.y());
+        blitSprite.blit(guiGraphics, this.x(guiGraphics.guiWidth()), this.y(guiGraphics.guiHeight()), this.width(guiGraphics.guiWidth()), this.height(guiGraphics.guiHeight()));
         super.render(guiGraphics, mouseX, mouseY, delta);
     }
 }

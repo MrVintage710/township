@@ -10,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 public class IconNode extends Node {
 
     private ResourceLocation icon;
-    private int w = 16, h = 16;
+    private int x = 0, y = 0, w = 16, h = 16;
 
     public IconNode(ResourceLocation icon) {
         this.icon = icon;
@@ -23,14 +23,10 @@ public class IconNode extends Node {
         if(icon == null) return;
         if(BuiltInRegistries.ITEM.containsKey(icon)) {
             Item item = BuiltInRegistries.ITEM.get(this.icon);
-            guiGraphics.renderItem(new ItemStack(item), this.x(), this.y());
+            guiGraphics.renderItem(new ItemStack(item), this.x(guiGraphics.guiWidth()), this.y(guiGraphics.guiHeight()));
         } else {
-            guiGraphics.blit(icon, this.x(), this.y(), this.width(), this.height(), 0, 0, w, h, w, h);
+            guiGraphics.blit(icon, x, y, w, h, 0, 0, w, h);
         }
         super.render(guiGraphics, mouseX, mouseY, delta);
-    }
-
-    public void setIcon(ResourceLocation icon) {
-        this.icon = icon;
     }
 }
