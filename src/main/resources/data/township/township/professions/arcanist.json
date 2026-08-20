@@ -8,7 +8,7 @@
       "merits": {
 
         "simple_spellcasting" : {
-          "name": "Simple Spellcasting",
+          "name": "Simple Spellcasting With a Long Title",
           "tier": 0,
           "icon": "minecraft:book",
           "xp": 100,
@@ -29,13 +29,15 @@
           ]
         }
 
-      },
-      "sage" : {
-        "name": "Sage",
-        "icon": "minecraft:stick",
-        "merits": {
-        }
+      }
+    },
+
+    "sage" : {
+      "name": "Sage",
+      "icon": "minecraft:stick",
+      "merits": {
       }
     }
+
   }
 }

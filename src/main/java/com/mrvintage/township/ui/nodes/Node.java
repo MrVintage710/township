@@ -68,12 +68,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     private Unit y = Unit.px(0);
     private Unit w = Unit.percent(1.0f);
     private Unit h =  Unit.percent(1.0f);
-
     private boolean shouldDebug = false;
-
-    private int pl, pr, pt, pb = 0;
-
+    private int pl = 0, pr = 0, pt = 0, pb = 0;
     private boolean isFocused = false;
+    private boolean shouldClip = false;
+
 
     private Optional<String> id = Optional.empty();
 
@@ -111,27 +110,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
-    public Node withRect(float x, int y, float w, int h) {
+    public Node withRect(float x, float y, float w, float h) {
         this.x = Unit.percent(x);
-        this.y = Unit.px(y);
-        this.w = Unit.percent(w);
-        this.h = Unit.px(h);
-        return this;
-    }
-
-    public Node withRect(int x, float y, int w, float h) {
-        this.x = Unit.px(x);
         this.y = Unit.percent(y);
-        this.w = Unit.px(w);
-        this.h = Unit.percent(h);
-        return this;
-    }
-
-    public Node withRect(float x, Unit y, float w, int h) {
-        this.x = Unit.percent(x);
-        this.y = y;
         this.w = Unit.percent(w);
-        this.h = Unit.px(h);
+        this.h = Unit.percent(h);
         return this;
     }
 
@@ -141,28 +124,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
-    public Node withRect(float x, float y, float w, float h) {
-        this.x = Unit.percent(x);
-        this.y = Unit.percent(y);
-        this.w = Unit.percent(w);
-        this.h = Unit.percent(h);
-        return this;
-    }
-
     public Node withPos(float x, float y) {
         this.x = Unit.percent(x);
-        this.y = Unit.percent(y);
-        return this;
-    }
-
-    public Node withPos(float x, int y) {
-        this.x = Unit.percent(x);
-        this.y = Unit.px(y);
-        return this;
-    }
-
-    public Node withPos(int x, float y) {
-        this.x = Unit.px(x);
         this.y = Unit.percent(y);
         return this;
     }
@@ -204,6 +167,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
+    public Node withClip() {
+        this.shouldClip = true;
+        return this;
+    }
+
     public void layout() {
         for (Node child : children) {
             child.layout();
@@ -212,9 +180,13 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        if (shouldClip) {
+            guiGraphics.enableScissor(this.x(), this.y(),  this.x() + this.width(), this.y() + this.height());
+        }
         for(Node child : this.children) {
             child.render(guiGraphics, mouseX, mouseY, delta);
         }
+        if(shouldClip) { guiGraphics.disableScissor(); }
         if(this.shouldDebug) this.debug(guiGraphics);
     }
 
@@ -328,6 +300,16 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         int basis = this.parent.map(parent -> parent.getVerticalBasis(defaultBasis)).orElse(defaultBasis);
         int origin = this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0);
         return this.y.calc(basis) + origin;
+    }
+
+    public final Node setY(int y) {
+        this.y = Unit.px(y);
+        return this;
+    }
+
+    public final Node setY(float y) {
+        this.y = Unit.percent(y);
+        return this;
     }
 
     public final Node setY(Unit y) {

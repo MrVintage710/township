@@ -75,7 +75,7 @@ public class Township {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the range
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -86,11 +86,11 @@ public class Township {
         modEventBus.addListener(this::clientSetup);
         modEventBus.register(new ServerModEvents());
 
-        // Register the Deferred Register to the mod event bus so blocks get registered
+        // Register the Deferred Register to the mod range bus so blocks get registered
         BLOCKS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so items get registered
+        // Register the Deferred Register to the mod range bus so items get registered
         ITEMS.register(modEventBus);
-        // Register the Deferred Register to the mod event bus so tabs get registered
+        // Register the Deferred Register to the mod range bus so tabs get registered
         CREATIVE_MODE_TABS.register(modEventBus);
 
         Goals.DEFERRED_DISPATCH.register(modEventBus);

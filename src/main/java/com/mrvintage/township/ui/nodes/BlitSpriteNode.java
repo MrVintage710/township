@@ -35,7 +35,6 @@ public class BlitSpriteNode extends Node {
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        Township.LOGGER.info("{}", this.children);
         blitSprite.blit(guiGraphics, this.x(), this.y(), this.width(), this.height());
         super.render(guiGraphics, mouseX, mouseY, delta);
     }

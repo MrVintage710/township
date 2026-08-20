@@ -2,10 +2,7 @@ package com.mrvintage.township.ui.proficiency;
 
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.ui.Sprites;
-import com.mrvintage.township.ui.nodes.BlitSpriteNode;
-import com.mrvintage.township.ui.nodes.Node;
-import com.mrvintage.township.ui.nodes.NodeScreen;
-import com.mrvintage.township.ui.nodes.ScrollList;
+import com.mrvintage.township.ui.nodes.*;
 import net.minecraft.network.chat.Component;
 
 
@@ -27,7 +24,7 @@ public class ProficiencyScreen extends NodeScreen {
         List<Profession> proficiencies = Profession.all();
 
         this.selectedProfession = proficiencies.getFirst();
-        selectedProficiencyTabs = (ProficiencyTabs) new ProficiencyTabs(this.selectedProfession).withPos(1.0f, 8);
+        selectedProficiencyTabs = (ProficiencyTabs) new ProficiencyTabs(this.selectedProfession).withPos(Unit.percent(1.0f), Unit.px(8));
 
         return new BlitSpriteNode(Sprites.PROFICIENCIES_BG).centered()
             .withPadding(15, 15, 16, 15)

@@ -5,10 +5,9 @@ import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.sound.Sounds;
-import com.mrvintage.township.ui.nodes.BlitSpriteNode;
-import com.mrvintage.township.ui.nodes.IconNode;
-import com.mrvintage.township.ui.nodes.Node;
-import com.mrvintage.township.ui.nodes.Unit;
+import com.mrvintage.township.ui.nodes.*;
+import com.mrvintage.township.util.Easing;
+import com.mrvintage.township.util.timeline.Timeline;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,11 +20,12 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @EventBusSubscriber(modid = Township.MODID, value = Dist.CLIENT)
 public class PlayerOverlayPatch {
     private static final float XP_NOTIFICATION_LIFETIME = 60f;
-    private static final float MERIT_COMPLETE_NOTIFICATION_LIFETIME = 60f;
+    private static final float MERIT_COMPLETE_NOTIFICATION_LIFETIME = 6f * 20f;
 
     private static final List<XpNotification> XP_NOTIFICATIONS = new ArrayList<>();
     private static final List<MeritCompleteNotification> MERIT_COMPLETE_NOTIFICATIONS = new ArrayList<>();
@@ -41,19 +41,21 @@ public class PlayerOverlayPatch {
     }
 
     public static void enqueueMeritCompleteNotification(Merit.Path path) {
-        Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sounds.LEVEL_UP.get(), 1.0F));
         MERIT_COMPLETE_NOTIFICATIONS.add(new MeritCompleteNotification(path));
     }
 
     private static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
         XP_NOTIFICATIONS.removeIf(xpNotification -> xpNotification.render(graphics, deltaTracker));
-        MERIT_COMPLETE_NOTIFICATIONS.removeIf(meritCompleteNotification -> meritCompleteNotification.render(graphics, deltaTracker));
+        if (!MERIT_COMPLETE_NOTIFICATIONS.isEmpty()) {
+            if (MERIT_COMPLETE_NOTIFICATIONS.getFirst().render(graphics, deltaTracker)) {
+                MERIT_COMPLETE_NOTIFICATIONS.removeFirst();
+            }
+        }
     }
 
     private static class XpNotification {
         final Integer xp;
         final Merit.Path path;
-
         float time;
 
         public XpNotification(Integer number, Merit.Path path) {
@@ -88,33 +90,75 @@ public class PlayerOverlayPatch {
     private static class MeritCompleteNotification {
 
         private final Node overlay =
-            new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(0.25f, 5, 0.5f, 44).withId("0").withChildren(
-                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(Unit.px(10), basis -> basis / 2 - 11, Unit.px(22), Unit.px(22)).withId("1").withChildren(
+            new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(basis -> basis / 2 - 170 / 2, Unit.px(5), Unit.px(170), Unit.px(44)).withPadding(10, 7).withChildren(
+                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(Unit.px(0), basis -> basis / 2 - 11, Unit.px(22), Unit.px(22)).withChildren(
                     new IconNode().withRect(3, 3, 16, 16).withId("icon")
-                )
+                ),
+
+                new TextNode("Congrats! You completed")
+                    .withBehavior(TextNode.Behavior.Pan)
+                    .withVerticalAlign(NodeUi.VerticalAlign.CENTER)
+                    .withRect(Unit.px(23), basis -> basis / 2 - 11, basis -> basis - 22, Unit.px(11)),
+
+                new TextNode()
+                    .withColor(0XFFAA00)
+                    .withBehavior(TextNode.Behavior.Pan)
+                    .withVerticalAlign(NodeUi.VerticalAlign.CENTER)
+                    .withClip()
+                    .withId("text")
+                    .withRect(Unit.px(23), basis -> basis / 2, basis -> basis - 22, Unit.px(11))
             );
 
-        private float time = 0f;
+        private final Timeline timeline = new Timeline(MERIT_COMPLETE_NOTIFICATION_LIFETIME);
+
         private final Merit.Path path;
+        private float opacity = 0.0f;
 
         public MeritCompleteNotification(Merit.Path path) {
             var merit = Profession.findMerit(path);
 
             overlay.getNodeWithId("icon").ifPresent(icon -> {
-                Township.LOGGER.info("FOUND ICON!");
                 ((IconNode) icon).setIcon(merit.icon());
             });
+
+            overlay.getNodeWithId("text").ifPresent(text -> {
+                ((TextNode) text).withText(merit.name() + "!");
+            });
+
+            this.timeline.addToTimeline(0f, 5f, progress -> this.opacity = progress);
+            this.timeline.addToTimeline(-5f, MERIT_COMPLETE_NOTIFICATION_LIFETIME, progress -> this.opacity = (1.0f - progress));
+            this.timeline.addToTimeline(0f, 15f, progress -> {
+                int height = this.overlay.height();
+                this.overlay.setY((int) ( -height + (height + 5) * progress));
+            }, Easing.easeOutCubic);
+
+            this.timeline.addEvent(0f, () -> Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sounds.LEVEL_UP.get(), 1.0F)));
+
+            var textLength = Minecraft.getInstance().font.width(merit.name());
+
+            // If the text is falling off of the ui, change the size and position to fix.
+            if (textLength >= this.overlay.getHorizontalBasis() - 22) {
+                var newWidth = textLength + 25 + this.overlay.getPaddingLeft() + this.overlay.getPaddingRight();
+                this.overlay.withWidth(newWidth);
+                this.overlay.withRect(basis -> basis / 2 - newWidth / 2, Unit.px(5), Unit.px(newWidth), Unit.px(44));
+            }
 
             this.path = path;
         }
 
         public boolean render(GuiGraphics graphics, DeltaTracker deltaTracker) {
             var merit = Profession.findMerit(path);
-            if(merit == null || this.time >= MERIT_COMPLETE_NOTIFICATION_LIFETIME) return true;
+            if(merit == null || this.timeline.isDone()) return true;
+            this.timeline.tick(deltaTracker.getGameTimeDeltaTicks());
+
+            RenderSystem.enableBlend();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.opacity);
 
             overlay.render(graphics, 0, 0, deltaTracker.getRealtimeDeltaTicks());
 
-            time += deltaTracker.getRealtimeDeltaTicks();
+            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+            RenderSystem.disableBlend();
+
             return false;
         }
     }

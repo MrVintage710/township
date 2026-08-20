@@ -25,6 +25,10 @@ public class ScrollList extends Node {
 
     private final BlitSprite scrollHandleSprite = Sprites.PARCHMENT_SCROLL_HANDLE;
 
+    public ScrollList() {
+        this.withClip();
+    }
+
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         guiGraphics.enableScissor(this.x(), this.y(),  this.x() + this.width(), this.y() + this.height());
