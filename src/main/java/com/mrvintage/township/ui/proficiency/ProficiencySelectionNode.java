@@ -32,7 +32,7 @@ public class ProficiencySelectionNode extends Node {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         boolean isHovered = this.isMouseOver(mouseX, mouseY) || Objects.equals(screen.getSelectedProficiency(), profession);
         BlitSprite bg = isHovered ? Sprites.PARCHMENT_BG_HOVER : Sprites.PARCHMENT_BG;
         BlitSprite iconBorder = isHovered ? Sprites.SEWN_BORDER_HOVER : Sprites.SEWN_BORDER;
@@ -41,12 +41,12 @@ public class ProficiencySelectionNode extends Node {
         Item item = BuiltInRegistries.ITEM.get(this.profession.icon());
         guiGraphics.renderItem(new ItemStack(item, 1), this.x() + 1, this.y() + 1);
         guiGraphics.drawString(Minecraft.getInstance().font, this.profession.name(), this.x() + 20, this.y() + 4, 0, false);
-        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         screen.setSelectedProficiency(profession);
+        screen.setSelectedSpeciality(this.profession.specialties().firstKey());
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
         return true;
     }

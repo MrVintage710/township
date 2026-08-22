@@ -34,8 +34,7 @@ public class BlitSpriteNode extends Node {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         blitSprite.blit(guiGraphics, this.x(), this.y(), this.width(), this.height());
-        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 }

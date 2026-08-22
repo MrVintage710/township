@@ -2,21 +2,31 @@ package com.mrvintage.township.profession;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mrvintage.township.networking.UpdatePlayerProfessionProgress;
 import com.mrvintage.township.profession.goal.Goal;
 import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerOverlayPatch;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class ProfessionProgress {
+
+    @OnlyIn(Dist.CLIENT)
+    public static ProfessionProgress ClientProfessionProgress;
+
     public static final Codec<ProfessionProgress> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.unboundedMap(Merit.Path.CODEC, MeritProgress.CODEC).fieldOf("in_progress").forGetter(ProfessionProgress::progress),
             Merit.Path.CODEC.listOf().fieldOf("done").forGetter(ProfessionProgress::doneList)
         ).apply(instance, ProfessionProgress::new)
     );
+
     private final Map<Merit.Path, MeritProgress> inProgress;
     private final Set<Merit.Path> done;
 
@@ -36,6 +46,7 @@ public final class ProfessionProgress {
     }
 
     public static void incrementProgress(ServerPlayer player, Event event) {
+        if (event == null) { return; }
         ProfessionProgress progress = player.getData(DataAttachments.PROFESSION_PROGRESS);
         var merits = progress.inProgress.keySet();
 
@@ -70,6 +81,7 @@ public final class ProfessionProgress {
             }
         }
         player.setData(DataAttachments.PROFESSION_PROGRESS, progress);
+        PacketDistributor.sendToPlayer(player, new UpdatePlayerProfessionProgress(progress));
     }
 
     public static ProfessionProgress progressOf(ServerPlayer player) {
@@ -106,12 +118,24 @@ public final class ProfessionProgress {
         return inProgress;
     }
 
+    public Map<Merit.Path, MeritProgress> progressFromSpecialty(String speciality) {
+        return this.progress().entrySet().stream()
+            .filter(entry -> entry.getKey().speciality().equals(speciality))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     public Set<Merit.Path> done() {
         return done;
     }
 
     public List<Merit.Path> doneList() {
         return new ArrayList<>(done);
+    }
+
+    public List<Merit.Path> doneFromSpecialty(String speciality) {
+        return this.done.stream()
+            .filter(merit -> merit.speciality().equals(speciality))
+            .collect(Collectors.toList());
     }
 
     public List<Merit.Path> all() {

@@ -179,16 +179,19 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         if (shouldClip) {
             guiGraphics.enableScissor(this.x(), this.y(),  this.x() + this.width(), this.y() + this.height());
         }
+        this.draw(guiGraphics, mouseX, mouseY, delta);
         for(Node child : this.children) {
             child.render(guiGraphics, mouseX, mouseY, delta);
         }
         if(shouldClip) { guiGraphics.disableScissor(); }
         if(this.shouldDebug) this.debug(guiGraphics);
     }
+
+    protected abstract void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta);
 
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
@@ -451,6 +454,10 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public Rect rect() {
         return new Rect(this.x(), this.y(), this.width(), this.height());
+    }
+
+    public Rect rectWithPadding() {
+        return new Rect(this.x() + this.getPaddingLeft(), this.y() + this.getPaddingTop(), this.width() - this.getPaddingRight(), this.height() - this.getPaddingBottom());
     }
 
     public static int getDefaultContextWidth() {

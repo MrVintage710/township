@@ -30,16 +30,12 @@ public class ScrollList extends Node {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        guiGraphics.enableScissor(this.x(), this.y(),  this.x() + this.width(), this.y() + this.height());
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         if(this.needsScrollbar()) {
             var scrollHandleArea = this.scrollHandleArea();
             scrollSprite.blit(guiGraphics, this.right() - scrollSprite.width(), this.y(), scrollSprite.width(), this.height());
             scrollHandleSprite.blit(guiGraphics, scrollHandleArea.x(), scrollHandleArea.y(), scrollHandleArea.w(), scrollHandleArea.h());
         }
-        super.render(guiGraphics, mouseX, mouseY, delta);
-        guiGraphics.disableScissor();
-
     }
 
     @Override

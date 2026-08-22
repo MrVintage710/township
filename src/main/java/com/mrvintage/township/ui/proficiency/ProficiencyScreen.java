@@ -12,8 +12,11 @@ import java.util.stream.Collectors;
 public class ProficiencyScreen extends NodeScreen {
 
     private Profession selectedProfession;
+    private SpecialtyTabs specialtyTabs;
 
-    private ProficiencyTabs selectedProficiencyTabs;
+    private MeritTree tree;
+
+    private String selectedSpeciality;
 
     public ProficiencyScreen(Component title) {
         super(title);
@@ -24,16 +27,23 @@ public class ProficiencyScreen extends NodeScreen {
         List<Profession> proficiencies = Profession.all();
 
         this.selectedProfession = proficiencies.getFirst();
-        selectedProficiencyTabs = (ProficiencyTabs) new ProficiencyTabs(this.selectedProfession).withPos(Unit.percent(1.0f), Unit.px(8));
+        this.selectedSpeciality = this.selectedProfession.specialties().firstKey();
+        this.tree = (MeritTree) new MeritTree(this).withRect(Unit.px(138), Unit.px(0), Unit.px(128), Unit.px(170)).debugMode();
+        this.specialtyTabs = (SpecialtyTabs) new SpecialtyTabs(this, this.selectedProfession).withPos(Unit.percent(1.0f), Unit.px(8));
 
-        return new BlitSpriteNode(Sprites.PROFICIENCIES_BG).centered()
+        var ui = new BlitSpriteNode(Sprites.PROFICIENCIES_BG).centered()
             .withPadding(15, 15, 16, 15)
             .withChildren(
                 new ScrollList().withRect(0, 0, 128, 169).withChildren(
                     proficiencies.stream().map(proficiency -> new ProficiencySelectionNode(proficiency, this)).collect(Collectors.toUnmodifiableList())
                 ),
-                selectedProficiencyTabs
+                tree,
+                specialtyTabs
             );
+
+        this.tree.setPopupRect(ui.rectWithPadding().inner(-25, -10, 158, 189));
+
+        return ui;
     }
 
     @Override
@@ -52,7 +62,18 @@ public class ProficiencyScreen extends NodeScreen {
 
     public ProficiencyScreen setSelectedProficiency(Profession selectedProfession) {
         this.selectedProfession = selectedProfession;
-        selectedProficiencyTabs.setProficiency(selectedProfession);
+        specialtyTabs.setProficiency(selectedProfession);
+        this.setSelectedSpeciality(selectedProfession.specialties().firstKey());
         return this;
+    }
+
+    public ProficiencyScreen setSelectedSpeciality(String selectedSpeciality) {
+        this.selectedSpeciality = selectedSpeciality;
+        this.tree.update();
+        return this;
+    }
+
+    public String getSelectedSpeciality() {
+        return selectedSpeciality;
     }
 }

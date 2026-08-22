@@ -13,23 +13,27 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public class ProficiencyTab extends Node {
+public class SpecialtyTab extends Node {
 
-    private Specialty specialty;
+    private final ProficiencyScreen screen;
+    private final String id;
+    private final Specialty specialty;
     private boolean onRight = false;
 
     private OnClickListener onClick = tab -> false;
 
-    public ProficiencyTab(Specialty specialty) {
+    public SpecialtyTab(ProficiencyScreen screen, Specialty specialty, String id) {
+        this.screen = screen;
         this.specialty = specialty;
+        this.id = id;
     }
 
-    public ProficiencyTab setOnClick(OnClickListener onClick) {
+    public SpecialtyTab setOnClick(OnClickListener onClick) {
         this.onClick = onClick;
         return this;
     }
 
-    public ProficiencyTab onLeft() {
+    public SpecialtyTab onLeft() {
         this.onRight = false;
         return this;
     }
@@ -42,9 +46,9 @@ public class ProficiencyTab extends Node {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         BlitSprite bookmark = !onRight ? Sprites.BOOKMARK_RIGHT : Sprites.BOOKMARK_LEFT;
-        BlitSprite bg = this.isMouseOver(mouseX, mouseY) ? Sprites.PARCHMENT_BG_HOVER : Sprites.PARCHMENT_BG;
+        BlitSprite bg = this.isMouseOver(mouseX, mouseY) || this.screen.getSelectedSpeciality().equals(this.id) ? Sprites.PARCHMENT_BG_HOVER : Sprites.PARCHMENT_BG;
         bookmark.blit(guiGraphics, this.x() + 4, this.y() - 2, this.width() + 12, 18);
         bg.blit(guiGraphics, this.x()-1, this.y()-1, 16, 16);
 
@@ -56,16 +60,16 @@ public class ProficiencyTab extends Node {
                 (int) ((float) (this.x() + 1) / 0.75f),
                 (int) ((float) (this.y() + 1) / 0.75f));
         guiGraphics.pose().popPose();
-        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        screen.setSelectedSpeciality(this.id);
         return true;
     }
 
     public interface OnClickListener {
-        boolean onClick(ProficiencyTab tab);
+        boolean onClick(SpecialtyTab tab);
     }
 }

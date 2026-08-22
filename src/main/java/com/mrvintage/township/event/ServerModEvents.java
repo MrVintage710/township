@@ -1,12 +1,15 @@
 package com.mrvintage.township.event;
 
 import com.mrvintage.township.Township;
+import com.mrvintage.township.networking.UpdatePlayerProfessionProgress;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.profession.reward.Rewards;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
@@ -33,5 +36,16 @@ public class ServerModEvents {
     public void newRegistry(NewRegistryEvent event) {
         event.register(Goals.DISPATCH);
         event.register(Rewards.DISPATCH);
+    }
+
+    @SubscribeEvent // on the mod event bus
+    public void register(final RegisterPayloadHandlersEvent event) {
+        // Sets the current network version
+        final PayloadRegistrar registrar = event.registrar("1");
+        registrar.commonToClient(
+            UpdatePlayerProfessionProgress.TYPE,
+            UpdatePlayerProfessionProgress.STREAM_CODEC,
+            UpdatePlayerProfessionProgress::handle
+        );
     }
 }

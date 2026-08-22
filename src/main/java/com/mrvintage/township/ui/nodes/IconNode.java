@@ -20,7 +20,7 @@ public class IconNode extends Node {
     public IconNode() {}
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         if(icon == null) return;
         if(BuiltInRegistries.ITEM.containsKey(icon)) {
             Item item = BuiltInRegistries.ITEM.get(this.icon);
@@ -28,7 +28,6 @@ public class IconNode extends Node {
         } else {
             guiGraphics.blit(icon, x, y, 0, 0, w, h, w, h);
         }
-        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public ResourceLocation getIcon() {

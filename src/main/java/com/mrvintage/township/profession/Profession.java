@@ -4,22 +4,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.goal.Goal;
-import com.mrvintage.township.registry.DataAttachments;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public record Profession(String name, ResourceLocation icon, Map<String, Specialty> specialties) {
+public record Profession(String name, ResourceLocation icon, TreeMap<String, Specialty> specialties) {
 
     public static final ResourceKey<Registry<Profession>> REGISTRY_KEY = ResourceKey.createRegistryKey(
         ResourceLocation.fromNamespaceAndPath(Township.MODID, "professions")
@@ -29,11 +26,12 @@ public record Profession(String name, ResourceLocation icon, Map<String, Special
         instance.group(
             Codec.STRING.fieldOf("name").forGetter(Profession::name),
             ResourceLocation.CODEC.fieldOf("icon").forGetter(Profession::icon),
-            Codec.unboundedMap(Codec.STRING, Specialty.CODEC).fieldOf("specialties").forGetter(Profession::specialties)
+            Codec.unboundedMap(Codec.STRING, Specialty.CODEC).fieldOf("specialties").xmap(TreeMap::new, HashMap::new).forGetter(Profession::specialties)
         ).apply(instance, Profession::new)
     );
 
     @Nullable
+    /// Finds the merit of the given path on the SERVER, and returns the value.
     public static Merit findMerit(ServerLevel level, Merit.Path path) {
         var registry = level.registryAccess().registry(Profession.REGISTRY_KEY);
         if(registry.isEmpty()) return null;
@@ -46,6 +44,7 @@ public record Profession(String name, ResourceLocation icon, Map<String, Special
 
     @OnlyIn(Dist.CLIENT)
     @Nullable
+    /// Finds the merit of the given path on the CLIENT, and returns the value.
     public static Merit findMerit(Merit.Path path) {
         var connection = Minecraft.getInstance().getConnection();
         if(connection == null) return null;
@@ -95,6 +94,21 @@ public record Profession(String name, ResourceLocation icon, Map<String, Special
     @NotNull
     public static Map<Merit.Path, Merit> allMerits(ServerLevel level) {
         var registry = level.registryAccess().registry(Profession.REGISTRY_KEY);
+        return getMeritsFromRegistry(registry);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static Map<Merit.Path, Merit> allMerits() {
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection != null) {
+            var registry = connection.registryAccess().registry(Profession.REGISTRY_KEY);
+            return getMeritsFromRegistry(registry);
+        }
+
+        return new HashMap<>();
+    }
+
+    private static @NotNull Map<Merit.Path, Merit> getMeritsFromRegistry(Optional<Registry<Profession>> registry) {
         if (registry.isEmpty()) return new HashMap<>();
         Map<Merit.Path, Merit> merits = new HashMap<>();
         for (var professionEntry : registry.get().entrySet()) {

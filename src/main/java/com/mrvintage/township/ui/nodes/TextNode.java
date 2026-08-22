@@ -70,7 +70,7 @@ public class TextNode extends Node{
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+    public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         if (this.text.getString().isEmpty()) { super.render(guiGraphics, mouseX, mouseY, delta); return; }
         Font font = Minecraft.getInstance().font;
 
@@ -108,6 +108,5 @@ public class TextNode extends Node{
             );
         }
         guiGraphics.pose().popPose();
-        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 }
