@@ -3,6 +3,7 @@ package com.mrvintage.township.profession.goal;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mrvintage.township.profession.Merit;
+import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.Event;
 
 import java.util.function.Function;
@@ -17,5 +18,5 @@ public interface Goal<T extends Event> {
 
     boolean accepts(Event event);
 
-
+    Component toDescription();
 }

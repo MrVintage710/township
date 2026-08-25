@@ -3,11 +3,7 @@ package com.mrvintage.township.profession.reward;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.mrvintage.township.profession.goal.Goal;
-import com.mrvintage.township.profession.goal.Goals;
 import net.minecraft.server.level.ServerPlayer;
-
-import java.util.function.Function;
 
 public record CommandReward(String command) implements Reward {
 

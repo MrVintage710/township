@@ -9,8 +9,10 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.util.FastColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +66,22 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         }
     }
 
+    public class Solver {
+
+        public final LinkedHashSet<Node> visited = new LinkedHashSet<>();
+
+        public Solver(Node root) {
+            this.visited.add(root);
+        }
+
+        private Node current() {
+            return this.visited.getLast();
+        }
+    }
+
+    private Unit originX = Unit.px(0);
+    private Unit originY = Unit.px(0);
+
     private Unit x = Unit.px(0);
     private Unit y = Unit.px(0);
     private Unit w = Unit.percent(1.0f);
@@ -72,6 +90,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     private int pl = 0, pr = 0, pt = 0, pb = 0;
     private boolean isFocused = false;
     private boolean shouldClip = false;
+    private boolean shouldTakeRemainingWidth = false;
 
 
     private Optional<String> id = Optional.empty();
@@ -81,16 +100,22 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     protected Optional<Node> parent = Optional.empty();
 
     public Node withChildren(Node... children) {
-        for (Node node : children) { node.parent = Optional.of(this); }
         this.children.addAll(List.of(children));
-        this.layout();
+        for (Node node : children) { node.parent = Optional.of(this);  node.layout(); }
         return this;
     }
 
     public Node withChildren(List<Node> children) {
-        for (Node node : children) { node.parent = Optional.of(this); }
         this.children.addAll(children);
-        this.layout();
+        for (Node node : children) { node.parent = Optional.of(this); node.layout(); }
+        return this;
+    }
+
+    public Node withRect(@NotNull Node.Rect rect) {
+        this.x = Unit.px(rect.x);
+        this.y = Unit.px(rect.y);
+        this.w = Unit.px(rect.w);
+        this.h = Unit.px(rect.h);
         return this;
     }
 
@@ -159,6 +184,24 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public Node withHeight(float height) {
         this.h = Unit.percent(height);
+        return this;
+    }
+
+    public Node withOrigin(Unit x, Unit y) {
+        this.originX = x;
+        this.originY = y;
+        return this;
+    }
+
+    public Node withOrigin(int x, int y) {
+        this.originX = Unit.px(x);
+        this.originY = Unit.px(y);
+        return this;
+    }
+
+    public Node withOrigin(float x, float y) {
+        this.originX = Unit.percent(x);
+        this.originY = Unit.percent(y);
         return this;
     }
 
@@ -280,20 +323,40 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.isFocused;
     }
 
+    //==================================================================================================================
+    //      X related Methods
+    //==================================================================================================================
+
     public final int x() {
         return this.x(Node.getDefaultContextWidth());
     }
 
+    /// Gets the X coord of the Node. This takes into account parent position and padding, as well as this node origin offset.
     public final int x(int defaultBasis) {
         int basis = this.parent.map(parent -> parent.getHorizontalBasis(defaultBasis)).orElse(defaultBasis);
-        int origin = this.parent.map(p -> p.x(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0);
+        int origin = this.parent.map(p -> p.x(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0) - this.originX.calc(this.width());
+
         return this.x.calc(basis) + origin;
     }
+
+    public final int localX() {
+        return this.localX(this.parentWidth());
+    }
+
+    public final int localX(int basis) {
+        int origin = -this.originX.calc(this.width());
+        return this.x.calc(basis) + origin;
+    }
+
 
     public final Node setX(Unit x) {
         this.x = x;
         return this;
     }
+
+    //==================================================================================================================
+    //      Y Related Methods
+    //==================================================================================================================
 
     public final int y() {
         return this.y(Node.getDefaultContextHeight());
@@ -301,7 +364,16 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public final int y(int defaultBasis) {
         int basis = this.parent.map(parent -> parent.getVerticalBasis(defaultBasis)).orElse(defaultBasis);
-        int origin = this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0);
+        int origin = this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingTop).orElse(0) - this.originY.calc(this.height());
+        return this.y.calc(basis) + origin;
+    }
+
+    public final int localY() {
+        return this.localY(this.parentHeight());
+    }
+
+    public final int localY(int basis) {
+        int origin = -this.originY.calc(this.height());
         return this.y.calc(basis) + origin;
     }
 
@@ -320,13 +392,27 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
+    //==================================================================================================================
+    //      Width related Methods
+    //==================================================================================================================
+
     public final int width() {
         return this.width(Node.getDefaultContextWidth());
     }
 
     public final int width(int defaultBasis) {
         int basis = this.parent.map(Node::getHorizontalBasis).orElse(defaultBasis);
+        if (this.w.isAuto()) {
+            return this.contentWidth(basis);
+        }
         return this.w.calc(basis);
+    }
+
+    protected int contentWidth(int basis) {
+        return this.children.stream()
+            .mapToInt(child -> child.localX() + child.width(basis))
+            .max()
+            .orElse(0);
     }
 
     public final int parentWidth() {
@@ -348,13 +434,36 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this;
     }
 
-    public final int height() {
-        return this.height(Node.getDefaultContextHeight());
+    public int getHorizontalBasis() {
+        if (this.w.isAuto()) { this.parentWidth(); }
+        return this.width() - pl - pr;
     }
 
-    public final int height(int defaultBasis) {
-        int basis = this.parent.map(Node::getVerticalBasis).orElse(defaultBasis);
+    public int getHorizontalBasis(int defaultBasis) {
+        if (this.w.isAuto()) { return this.parentWidth(); }
+        return this.width(defaultBasis) - pl - pr;
+    }
+
+    //==================================================================================================================
+    //      Height related methods
+    //==================================================================================================================
+
+    public final int height() {
+        return this.height(parentHeight());
+    }
+
+    public final int height(int basis) {
+        if (this.h.isAuto()) { return this.contentHeight(basis); }
         return this.h.calc(basis);
+    }
+
+    protected int contentHeight(int basis) {
+        return this.children.stream()
+            .mapToInt(child ->
+                child.localY() + child.height(basis) + this.pt + this.pb
+            )
+            .max()
+            .orElse(0);
     }
 
     public final int parentHeight() {
@@ -365,6 +474,20 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         this.h = h;
         return this;
     }
+
+    public int getVerticalBasis() {
+        if (this.h.isAuto()) { return this.parentHeight(); }
+        return this.height() - pt - pb;
+    }
+
+    public int getVerticalBasis(int defaultBasis) {
+        if (this.h.isAuto()) { this.parentHeight(); }
+        return this.height(defaultBasis) - pt - pb;
+    }
+
+    //==================================================================================================================
+    //      Sides of the Node
+    //==================================================================================================================
 
     public final int right() {
         return this.x() + (this.width() - this.getPaddingRight());
@@ -382,6 +505,10 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.y() + (this.height() - this.getPaddingBottom());
     }
 
+    //==================================================================================================================
+    //      Padding
+    //==================================================================================================================
+
     public int getPaddingLeft() {
         return pl;
     }
@@ -396,22 +523,6 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public int getPaddingBottom() {
         return pb;
-    }
-
-    public int getHorizontalBasis() {
-        return this.width() - pl - pr;
-    }
-
-    public int getHorizontalBasis(int defaultBasis) {
-        return this.width(defaultBasis) - pl - pr;
-    }
-
-    public int getVerticalBasis() {
-        return this.height() - pt - pb;
-    }
-
-    public int getVerticalBasis(int defaultBasis) {
-        return this.height(defaultBasis) - pt - pb;
     }
 
     public Optional<Node> getNodeWithId(String id) {
@@ -433,13 +544,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
-
-    }
+    public void updateNarration(NarrationElementOutput narrationElementOutput) {}
 
     private void debug(GuiGraphics graphics) {
         graphics.renderOutline(this.x(), this.y(), this.width(), this.height(), FastColor.ARGB32.color(50, 255, 0, 0));
-        graphics.drawString(Minecraft.getInstance().font, this.x() + ", " + this.y() + " " + this.id.orElse(""), this.x(), this.y(), FastColor.ARGB32.color(50, 255, 0, 0));
+        graphics.drawString(Minecraft.getInstance().font, this.width() + ", " + this.height() + " " + this.id.orElse(""), this.x(), this.y(), FastColor.ARGB32.color(50, 255, 0, 0));
     }
 
     public Node debugMode() {

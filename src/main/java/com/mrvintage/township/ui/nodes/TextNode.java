@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 public class TextNode extends Node{
 
@@ -62,6 +63,19 @@ public class TextNode extends Node{
     public TextNode withText(Component text) {
         this.text = text;
         return this;
+    }
+
+    @Override
+    protected int contentHeight(int basis) {
+        Font font = Minecraft.getInstance().font;
+        int textWidth = Math.min( this.width(), font.width( this.text));
+        int textHeight = font.wordWrapHeight( this.text.getString(), textWidth );
+
+        return Math.max(super.contentHeight(basis), textHeight) ;
+    }
+
+    public int fitHeight() {
+        return Minecraft.getInstance().font.wordWrapHeight(this.text, this.width());
     }
 
     public TextNode withBehavior(Behavior behavior) {

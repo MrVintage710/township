@@ -8,7 +8,17 @@
       "merits": {
 
         "simple_spellcasting" : {
-          "name": "Simple Spellcasting With a Long Title",
+          "name": "Simple Spellcasting",
+          "desc": [
+            {
+              "text": "While spellcasting sounds simple, it is rarely the case. To complete this task, you will need to cast your first "
+            },
+            {
+              "text": " spell ",
+              "color": "light_purple"
+            },
+            "using the basics of magic."
+          ],
           "tier": 0,
           "icon": "minecraft:book",
           "xp": 100,
@@ -28,14 +38,6 @@
             }
           ]
         }
-
-      }
-    },
-
-    "sage" : {
-      "name": "Sage",
-      "icon": "minecraft:stick",
-      "merits": {
 
       }
     }

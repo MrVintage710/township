@@ -4,6 +4,7 @@ import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.profession.ProfessionProgress;
 import com.mrvintage.township.ui.nodes.Node;
+import com.mrvintage.township.ui.nodes.Unit;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -14,8 +15,6 @@ import java.util.stream.Collectors;
 public class MeritTree extends Node {
 
     private final ProficiencyScreen screen;
-
-    private Node.Rect popupRect;
 
     private class TreeNode {
         public final boolean isComplete;
@@ -45,7 +44,12 @@ public class MeritTree extends Node {
 
     public MeritTree(ProficiencyScreen screen) {
         this.screen = screen;
+    }
+
+    @Override
+    public void layout() {
         update();
+        super.layout();
     }
 
     public void update() {
@@ -64,6 +68,7 @@ public class MeritTree extends Node {
         this.fillLevels(1);
 
         this.children.clear();
+        var popupRect = this.rect().inner(-159, -10, 159,190);
         for (int i = 0; i < this.levels.size(); i++) {
             var level = this.levels.get(i);
             int finalI = i;
@@ -74,7 +79,8 @@ public class MeritTree extends Node {
                 .forEach(entry -> {
                     int y = 4 + (24 * finalI);
                     int x = this.width() / 2;
-                    this.withChildren(new MeritTreeNode(entry.getKey(), this.popupRect, entry.getValue().isComplete).withPos(x, y));
+
+                    this.withChildren(new MeritTreeNode(entry.getKey(), popupRect, entry.getValue().isComplete).withPos(x, y));
                 });
         }
     }
@@ -138,11 +144,6 @@ public class MeritTree extends Node {
 
     @Override
     public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
-        guiGraphics.drawString(Minecraft.getInstance().font, String.valueOf(this.levels.size()), this.x(), this.y(), 0, false);
-    }
 
-    public MeritTree setPopupRect(Rect popupRect) {
-        this.popupRect = popupRect;
-        return this;
     }
 }

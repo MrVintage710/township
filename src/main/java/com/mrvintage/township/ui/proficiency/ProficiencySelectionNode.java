@@ -35,7 +35,7 @@ public class ProficiencySelectionNode extends Node {
     public void draw(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         boolean isHovered = this.isMouseOver(mouseX, mouseY) || Objects.equals(screen.getSelectedProficiency(), profession);
         BlitSprite bg = isHovered ? Sprites.PARCHMENT_BG_HOVER : Sprites.PARCHMENT_BG;
-        BlitSprite iconBorder = isHovered ? Sprites.SEWN_BORDER_HOVER : Sprites.SEWN_BORDER;
+        BlitSprite iconBorder = isHovered ? Sprites.SEWN_RED_BORDER_HOVER : Sprites.SEWN_RED_BORDER;
         bg.blit(guiGraphics, this.x(), this.y() + 1,  this.width(), 16);
         iconBorder.blit(guiGraphics, this.x(), this.y(), 18, 18);
         Item item = BuiltInRegistries.ITEM.get(this.profession.icon());

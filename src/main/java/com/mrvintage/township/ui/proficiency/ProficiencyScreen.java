@@ -28,8 +28,11 @@ public class ProficiencyScreen extends NodeScreen {
 
         this.selectedProfession = proficiencies.getFirst();
         this.selectedSpeciality = this.selectedProfession.specialties().firstKey();
-        this.tree = (MeritTree) new MeritTree(this).withRect(Unit.px(138), Unit.px(0), Unit.px(128), Unit.px(170)).debugMode();
-        this.specialtyTabs = (SpecialtyTabs) new SpecialtyTabs(this, this.selectedProfession).withPos(Unit.percent(1.0f), Unit.px(8));
+        this.tree = (MeritTree) new MeritTree(this)
+            .withRect(Unit.px(138), Unit.px(0), Unit.px(128), Unit.px(170));
+
+        this.specialtyTabs = (SpecialtyTabs) new SpecialtyTabs(this, this.selectedProfession)
+            .withPos(Unit.percent(1.0f), Unit.px(8));
 
         var ui = new BlitSpriteNode(Sprites.PROFICIENCIES_BG).centered()
             .withPadding(15, 15, 16, 15)
@@ -40,8 +43,6 @@ public class ProficiencyScreen extends NodeScreen {
                 tree,
                 specialtyTabs
             );
-
-        this.tree.setPopupRect(ui.rectWithPadding().inner(-25, -10, 158, 189));
 
         return ui;
     }

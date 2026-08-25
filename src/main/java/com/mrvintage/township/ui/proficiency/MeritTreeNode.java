@@ -13,24 +13,27 @@ import java.util.Optional;
 public class MeritTreeNode extends Node {
 
     public final Merit.Path path;
-    public final Node.Rect popupRect;
+    public final MeritSheet meritSheet;
     public final boolean complete;
 
     public MeritTreeNode(Merit.Path path, Node.Rect popupRect, boolean complete) {
         this.path = path;
-        this.popupRect = popupRect;
+        this.meritSheet = (MeritSheet) new MeritSheet(path).withRect(popupRect);
+        this.meritSheet.layout();
         this.complete = complete;
 
         Merit merit = Profession.findMerit(this.path);
-        Optional.ofNullable(merit).ifPresent(m -> this.withChildren(
-            new IconNode(merit.icon()).withPos(3, 3)
-        ));
+        Optional.ofNullable(merit).ifPresent(m -> {
+            this.withChildren(
+                new IconNode(merit.icon()).withPos(3, 3)
+            );
+        });
+
     }
 
     @Override
     public void layout() {
-        this.withWidth(22);
-        this.withHeight(22);
+        this.withWidth(22).withHeight(22).withOrigin(11, 0);
         super.layout();
     }
 
@@ -40,12 +43,14 @@ public class MeritTreeNode extends Node {
 
         if (hovered) {
             guiGraphics.pose().pushPose();
-            guiGraphics.pose().translate(0.0f, 0.0f, 10000.0f);
-            Sprites.TORN_PAPER_BG.blit(guiGraphics, popupRect.x(), popupRect.y(), popupRect.w(), popupRect.h());
+            guiGraphics.pose().translate(0.0f, 0.0f, 1000.0f);
+            this.meritSheet.render(guiGraphics, mouseX, mouseY, delta);
             guiGraphics.pose().popPose();
         }
 
-        BlitSprite bg = hovered ? Sprites.SEWN_BORDER_HOVER : Sprites.SEWN_BORDER;
+        BlitSprite incompleteBg = hovered ? Sprites.SEWN_RED_BORDER_HOVER : Sprites.SEWN_RED_BORDER;
+        BlitSprite completeBg = hovered ? Sprites.SEWN_GREEN_BORDER_HOVER : Sprites.SEWN_GREEN_BORDER;
+        BlitSprite bg = this.complete ? completeBg : incompleteBg;
         bg.blit(guiGraphics, this.x(), this.y(), this.width(), this.height());
     }
 }

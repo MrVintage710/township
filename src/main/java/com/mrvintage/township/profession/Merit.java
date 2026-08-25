@@ -8,6 +8,8 @@ import com.mrvintage.township.profession.reward.Reward;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -18,9 +20,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record Merit(
     String name,
+    Optional<Component> desc,
     int tier,
     int xp,
     ResourceLocation icon,
@@ -31,6 +35,7 @@ public record Merit(
     public static final Codec<Merit> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
             Codec.STRING.fieldOf("name").forGetter(Merit::name),
+            ComponentSerialization.CODEC.optionalFieldOf("desc").forGetter(Merit::desc),
             Codec.INT.fieldOf("tier").forGetter(Merit::tier),
             Codec.INT.fieldOf("xp").forGetter(Merit::xp),
             ResourceLocation.CODEC.fieldOf("icon").forGetter(Merit::icon),

@@ -29,7 +29,19 @@ public interface Unit {
         }
     }
 
+    record Auto() implements Unit {
+        @Override
+        public int calc(int basis) { return 0; }
+
+        @Override
+        public boolean isAuto() {
+            return true;
+        }
+    }
+
     int calc(int basis);
+
+    default boolean isAuto() { return false; }
 
     static Unit.Px px(int px) {
         return new Unit.Px(px);
@@ -38,4 +50,6 @@ public interface Unit {
     static Unit.Percent percent(float percent) {
         return new Unit.Percent(percent);
     }
+
+    static Unit.Auto auto() { return new Unit.Auto(); }
 }

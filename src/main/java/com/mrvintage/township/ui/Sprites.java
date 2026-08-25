@@ -33,8 +33,11 @@ public class Sprites {
 
     public static final BlitSprite PARCHMENT_SCROLL_HANDLE = PROFICIENCIES_FULL.slice(387, 20, 5, 8, PARCHMENT_SCROLL_HANDLE_SCALING);
 
-    public static final BlitSprite SEWN_BORDER = PROFICIENCIES_FULL.slice(332, 0, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
-    public static final BlitSprite SEWN_BORDER_HOVER = PROFICIENCIES_FULL.slice(332, 18, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
+    public static final BlitSprite SEWN_RED_BORDER = PROFICIENCIES_FULL.slice(332, 0, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
+    public static final BlitSprite SEWN_RED_BORDER_HOVER = PROFICIENCIES_FULL.slice(332, 18, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
+
+    public static final BlitSprite SEWN_GREEN_BORDER = PROFICIENCIES_FULL.slice(332, 80, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
+    public static final BlitSprite SEWN_GREEN_BORDER_HOVER = PROFICIENCIES_FULL.slice(332, 98, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
 
     public static final BlitSprite BOOKMARK_LEFT = PROFICIENCIES_FULL.slice(419, 19, 34, 18, new BlitSpriteScaling.NineSlice(15, 1, 8, 8));
 

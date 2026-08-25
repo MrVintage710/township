@@ -20,7 +20,6 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @EventBusSubscriber(modid = Township.MODID, value = Dist.CLIENT)
 public class PlayerOverlayPatch {
@@ -91,7 +90,7 @@ public class PlayerOverlayPatch {
 
         private final Node overlay =
             new BlitSpriteNode(Sprites.TORN_PAPER_BG).withRect(basis -> basis / 2 - 170 / 2, Unit.px(5), Unit.px(170), Unit.px(44)).withPadding(10, 7).withChildren(
-                new BlitSpriteNode(Sprites.SEWN_BORDER).withRect(Unit.px(0), basis -> basis / 2 - 11, Unit.px(22), Unit.px(22)).withChildren(
+                new BlitSpriteNode(Sprites.SEWN_RED_BORDER).withRect(Unit.px(0), basis -> basis / 2 - 11, Unit.px(22), Unit.px(22)).withChildren(
                     new IconNode().withRect(3, 3, 16, 16).withId("icon")
                 ),
 
