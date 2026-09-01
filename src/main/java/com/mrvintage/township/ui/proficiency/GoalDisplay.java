@@ -15,14 +15,12 @@ public class GoalDisplay extends Node {
             .withVerticalAlign(NodeUi.VerticalAlign.CENTER)
             .withHorizontalAlign(NodeUi.HorizontalAlign.CENTER)
             .withRect(Unit.px(0), Unit.px(0), Unit.px(LEFT), Unit.percent(1.0f))
-            .withId("xp")
-            .debugMode(),
+            .withId("xp"),
         new TextNode()
             .withVerticalAlign(NodeUi.VerticalAlign.CENTER)
             .withHorizontalAlign(NodeUi.HorizontalAlign.CENTER)
             .withRect(Unit.px(LEFT + 3), Unit.px(0), basis -> basis - (LEFT + 3),  Unit.auto())
             .withId("desc")
-            .debugMode()
     );
 
     public GoalDisplay(Component desc, int xp) {
@@ -31,7 +29,7 @@ public class GoalDisplay extends Node {
         descNode.withText(desc);
         xpNode.withText(String.valueOf(xp));
 
-        this.withChildren(root);
+        this.withChildren(root).withHeight(Unit.auto());
     }
 
     @Override

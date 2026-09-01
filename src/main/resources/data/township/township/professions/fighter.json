@@ -42,7 +42,8 @@
           "rewards" : [
             {
               "type": "township:command",
-              "command": "say Hello World!"
+              "command": "say Hello World!",
+              "rewardMessage": "A nice Message :)"
             }
           ]
         }

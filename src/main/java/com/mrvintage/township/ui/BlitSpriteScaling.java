@@ -4,9 +4,9 @@ public interface BlitSpriteScaling {
 
     Type type();
 
-    public static final BlitSpriteScaling DEFAULT = new Stretch();
+    BlitSpriteScaling DEFAULT = new Stretch();
 
-    public static record Stretch() implements BlitSpriteScaling {
+    record Stretch() implements BlitSpriteScaling {
 
         @Override
         public Type type() {
@@ -14,7 +14,7 @@ public interface BlitSpriteScaling {
         }
     }
 
-    public static record NineSlice(int left, int right, int top, int bottom) implements BlitSpriteScaling {
+    record NineSlice(int left, int right, int top, int bottom) implements BlitSpriteScaling {
 
         @Override
         public Type type() {
@@ -22,7 +22,7 @@ public interface BlitSpriteScaling {
         }
     }
 
-    public static enum Type {
+    enum Type {
         STRETCH,
         TILE,
         NINE_SLICE

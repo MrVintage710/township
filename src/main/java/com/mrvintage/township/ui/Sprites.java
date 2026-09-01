@@ -39,6 +39,9 @@ public class Sprites {
     public static final BlitSprite SEWN_GREEN_BORDER = PROFICIENCIES_FULL.slice(332, 80, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
     public static final BlitSprite SEWN_GREEN_BORDER_HOVER = PROFICIENCIES_FULL.slice(332, 98, 18, 18, new BlitSpriteScaling.NineSlice(3, 3, 3, 3));
 
+    public static final BlitSprite PROGRESS_BAR_EMPTY = PROFICIENCIES_FULL.slice(416, 48, 32, 5, new BlitSpriteScaling.NineSlice(1, 1, 1, 1));
+    public static final BlitSprite PROGRESS_BAR_FULL = PROFICIENCIES_FULL.slice(416, 53, 32, 5, new BlitSpriteScaling.NineSlice(1, 1, 1, 1));
+
     public static final BlitSprite BOOKMARK_LEFT = PROFICIENCIES_FULL.slice(419, 19, 34, 18, new BlitSpriteScaling.NineSlice(15, 1, 8, 8));
 
 }

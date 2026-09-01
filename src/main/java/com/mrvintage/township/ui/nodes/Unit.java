@@ -5,8 +5,6 @@ public interface Unit {
     class Percent implements Unit {
 
         private float percent;
-        private boolean isDirty = false;
-        private int cached = 0;
 
         public Percent(float percent) {
             this.percent = percent;
@@ -14,11 +12,12 @@ public interface Unit {
 
         @Override
         public int calc(int basis) {
-            if (!this.isDirty) {
-                this.cached = (int) ((float) basis * this.percent);
-            }
+            return (int) ((float) basis * this.percent);
+        }
 
-            return this.cached;
+        @Override
+        public boolean isDependentOnParent() {
+            return true;
         }
     }
 
@@ -40,6 +39,10 @@ public interface Unit {
     }
 
     int calc(int basis);
+
+    default boolean isDependentOnParent() {
+        return false;
+    }
 
     default boolean isAuto() { return false; }
 

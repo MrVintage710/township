@@ -29,6 +29,13 @@
               "with": "minecraft:stone_sword",
               "xp": 10,
               "max_xp": 50
+            },
+            {
+              "type": "township:deal_damage",
+              "min_damage": 5,
+              "with": "minecraft:stone_sword",
+              "xp": 10,
+              "max_xp": 50
             }
           ],
           "rewards": [

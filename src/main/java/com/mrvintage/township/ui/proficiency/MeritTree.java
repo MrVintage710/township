@@ -68,7 +68,7 @@ public class MeritTree extends Node {
         this.fillLevels(1);
 
         this.children.clear();
-        var popupRect = this.rect().inner(-159, -10, 159,190);
+        var popupRect = this.rect().inner(-174, -10, 174,190);
         for (int i = 0; i < this.levels.size(); i++) {
             var level = this.levels.get(i);
             int finalI = i;

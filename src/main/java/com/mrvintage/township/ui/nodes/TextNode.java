@@ -69,9 +69,16 @@ public class TextNode extends Node{
     protected int contentHeight(int basis) {
         Font font = Minecraft.getInstance().font;
         int textWidth = Math.min( this.width(), font.width( this.text));
-        int textHeight = font.wordWrapHeight( this.text.getString(), textWidth );
+        int textHeight = font.wordWrapHeight( this.text.getString(), textWidth ) + 2;
 
         return Math.max(super.contentHeight(basis), textHeight) ;
+    }
+
+    protected int contentWidth(int basis) {
+        Font font = Minecraft.getInstance().font;
+        int textWidth = Math.min( this.width(), font.width( this.text));
+
+        return Math.max(super.contentHeight(basis), textWidth) ;
     }
 
     public int fitHeight() {

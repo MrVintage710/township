@@ -28,21 +28,20 @@ public final class ProfessionProgress {
     );
 
     private final Map<Merit.Path, MeritProgress> inProgress;
-    private final Set<Merit.Path> done;
+    private final Set<Merit.Path> doneList;
 
     public ProfessionProgress(Map<Merit.Path, MeritProgress> inProgress) {
         this.inProgress = new HashMap<>(inProgress);
-        this.done = new HashSet<>();
+        this.doneList = new HashSet<>();
     }
 
     public ProfessionProgress(Map<Merit.Path, MeritProgress> inProgress, List<Merit.Path> done) {
         this.inProgress = new HashMap<>(inProgress);
-        this.done = new HashSet<>(done);
+        this.doneList = new HashSet<>(done);
     }
 
     public ProfessionProgress() {
         this(new HashMap<>());
-
     }
 
     public static void incrementProgress(ServerPlayer player, Event event) {
@@ -52,22 +51,34 @@ public final class ProfessionProgress {
 
         boolean isDirty = false;
 
+        HashSet<Merit.Path> completeMerits = new HashSet<>();
+
         for (Merit.Path path : merits) {
             Merit merit = Profession.findMerit(player.serverLevel(), path);
+            var meritProgress = progress.inProgress.get(path);
+            if (meritProgress.isDone()) continue;
             for (Goal goal : merit.goals()) {
                 if (!goal.accepts(event)) continue;
-                var meritProgress = progress.inProgress.get(path);
                 int xp = goal.calcXp(event, merit);
                 PlayerOverlayPatch.enqueueXpNotification(path, xp);
                 meritProgress.add(xp);
                 isDirty = true;
-                if (merit.xp() <= meritProgress.getXp()) {
-                    progress.awardMerit(path, player, merit);
+                if (meritProgress.isDone()) {
+                    completeMerits.add(path);
                 }
             }
         }
 
-        if(isDirty) player.setData(DataAttachments.PROFESSION_PROGRESS, progress);
+        for (Merit.Path path : completeMerits) {
+            Merit merit = Profession.findMerit(player.serverLevel(), path);
+            if(merit == null) continue;
+            progress.awardMerit(path, player, merit);
+        }
+
+        if(isDirty) {
+            PacketDistributor.sendToPlayer(player, new UpdatePlayerProfessionProgress(progress));
+            player.setData(DataAttachments.PROFESSION_PROGRESS, progress);
+        }
     }
 
     /// This method will check if there are any merits that a player can start on, and adds them to in-progress merits.
@@ -77,7 +88,7 @@ public final class ProfessionProgress {
         var progress = player.getData(DataAttachments.PROFESSION_PROGRESS);
         for(var meritEntry : merits.entrySet()) {
             if(progress.canAdd(meritEntry.getKey()) && meritEntry.getValue().prereqs().stream().allMatch(progress::isDone)) {
-                progress.inProgress.put(meritEntry.getKey(), new MeritProgress());
+                progress.inProgress.put(meritEntry.getKey(), new MeritProgress(meritEntry.getValue().xp()));
             }
         }
         player.setData(DataAttachments.PROFESSION_PROGRESS, progress);
@@ -93,11 +104,13 @@ public final class ProfessionProgress {
     }
 
     public boolean isDone(Merit.Path path) {
-        return done.contains(path);
+        var progress = inProgress.get(path);
+        if(progress == null) return false;
+        return progress.getXp() >= progress.getTagetXp();
     }
 
     public boolean canAdd(Merit.Path path) {
-        return !inProgress.containsKey(path) && !done.contains(path);
+        return !inProgress.containsKey(path);
     }
 
     public MeritProgress getInProgress(Merit.Path path) {
@@ -106,12 +119,12 @@ public final class ProfessionProgress {
 
     public void clearMeritProgress(Merit.Path path) {
         this.inProgress.remove(path);
-        this.done.remove(path);
+        this.doneList.remove(path);
     }
 
     public void clearAllMeritProgress() {
         this.inProgress.clear();
-        this.done.clear();
+        this.doneList.clear();
     }
 
     public Map<Merit.Path, MeritProgress> progress() {
@@ -125,15 +138,15 @@ public final class ProfessionProgress {
     }
 
     public Set<Merit.Path> done() {
-        return done;
+        return this.doneList;
     }
 
     public List<Merit.Path> doneList() {
-        return new ArrayList<>(done);
+        return new ArrayList<>(this.done());
     }
 
     public List<Merit.Path> doneFromSpecialty(String speciality) {
-        return this.done.stream()
+        return this.done().stream()
             .filter(merit -> merit.speciality().equals(speciality))
             .collect(Collectors.toList());
     }
@@ -141,7 +154,6 @@ public final class ProfessionProgress {
     public List<Merit.Path> all() {
         List<Merit.Path> paths = new ArrayList<>();
         paths.addAll(inProgress.keySet());
-        paths.addAll(done);
         return paths;
     }
 
@@ -151,12 +163,13 @@ public final class ProfessionProgress {
 
     public void awardMerit(Merit.Path meritPath, ServerPlayer player, boolean isFake) {
         if (!isFake) {
-            this.done.add(meritPath);
-            this.inProgress.remove(meritPath);
+            if (doneList.contains(meritPath)) return;
+            doneList.add(meritPath);
             ProfessionProgress.refreshPlayerMerits(player);
+            PlayerOverlayPatch.enqueueMeritCompleteNotification(meritPath);
+        } else {
+            PlayerOverlayPatch.enqueueMeritCompleteNotification(meritPath);
         }
-
-        PlayerOverlayPatch.enqueueMeritCompleteNotification(meritPath);
     }
 
     public void awardMerit(Merit.Path meritPath, ServerPlayer player, Merit merit) {

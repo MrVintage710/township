@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mrvintage.township.Township;
 import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.Profession;
+import com.mrvintage.township.profession.ProfessionProgress;
 import com.mrvintage.township.sound.Sounds;
 import com.mrvintage.township.ui.nodes.*;
 import com.mrvintage.township.util.Easing;
@@ -44,7 +45,13 @@ public class PlayerOverlayPatch {
     }
 
     private static void render(GuiGraphics graphics, DeltaTracker deltaTracker) {
-        XP_NOTIFICATIONS.removeIf(xpNotification -> xpNotification.render(graphics, deltaTracker));
+        ArrayList<XpNotification> removeIndices = new ArrayList<>();
+        for(XpNotification notification : XP_NOTIFICATIONS) {
+            if (notification.render(graphics, deltaTracker)) {
+                removeIndices.add(notification);
+            }
+        }
+        XP_NOTIFICATIONS.removeAll(removeIndices);
         if (!MERIT_COMPLETE_NOTIFICATIONS.isEmpty()) {
             if (MERIT_COMPLETE_NOTIFICATIONS.getFirst().render(graphics, deltaTracker)) {
                 MERIT_COMPLETE_NOTIFICATIONS.removeFirst();
@@ -57,14 +64,17 @@ public class PlayerOverlayPatch {
         final Merit.Path path;
         float time;
 
+        final Timeline timeline = new Timeline(XP_NOTIFICATION_LIFETIME);
+
         public XpNotification(Integer number, Merit.Path path) {
             this.xp = number;
             this.path = path;
         }
 
         public boolean render(GuiGraphics graphics, DeltaTracker deltaTracker) {
+            var meritProgress = ProfessionProgress.ClientProfessionProgress.getInProgress(path);
             var merit = Profession.findMerit(path);
-            if(merit == null || this.time >= XP_NOTIFICATION_LIFETIME) return true;
+            if(merit == null || meritProgress == null || this.time >= XP_NOTIFICATION_LIFETIME) return true;
 
             float t = 1.0f - (time / XP_NOTIFICATION_LIFETIME);
 
@@ -80,6 +90,10 @@ public class PlayerOverlayPatch {
 
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
             RenderSystem.disableBlend();
+
+            float percent = (float) meritProgress.getXp() / (float) merit.xp();
+            Sprites.PROGRESS_BAR_EMPTY.blit(graphics, graphics.guiWidth() / 2 - 91, graphics.guiHeight() - 29, 182, 5);
+            Sprites.PROGRESS_BAR_FULL.blit(graphics, graphics.guiWidth() / 2 - 91, graphics.guiHeight() - 29, Math.round(182 * percent), 5);
 
             this.time += deltaTracker.getRealtimeDeltaTicks();
             return false;
@@ -115,6 +129,7 @@ public class PlayerOverlayPatch {
 
         public MeritCompleteNotification(Merit.Path path) {
             var merit = Profession.findMerit(path);
+            this.path = path;
 
             overlay.getNodeWithId("icon").ifPresent(icon -> {
                 ((IconNode) icon).setIcon(merit.icon());
@@ -142,7 +157,6 @@ public class PlayerOverlayPatch {
                 this.overlay.withRect(basis -> basis / 2 - newWidth / 2, Unit.px(5), Unit.px(newWidth), Unit.px(44));
             }
 
-            this.path = path;
         }
 
         public boolean render(GuiGraphics graphics, DeltaTracker deltaTracker) {
