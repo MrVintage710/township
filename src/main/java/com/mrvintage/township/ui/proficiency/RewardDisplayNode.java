@@ -1,27 +1,33 @@
 package com.mrvintage.township.ui.proficiency;
 
-import com.mrvintage.township.profession.reward.Reward;
-import com.mrvintage.township.profession.reward.Rewards;
 import com.mrvintage.township.ui.Sprites;
-import com.mrvintage.township.ui.nodes.BlitSpriteNode;
-import com.mrvintage.township.ui.nodes.Node;
-import com.mrvintage.township.ui.nodes.TextNode;
-import com.mrvintage.township.ui.nodes.Unit;
+import com.mrvintage.township.ui.nodes.*;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
+import java.util.List;
+import java.util.Optional;
 
 public class RewardDisplayNode extends Node {
 
     private final Node root = new BlitSpriteNode(Sprites.PARCHMENT_BG).withPadding(3, 3).withHeight(Unit.auto()).withChildren(
-        new TextNode().withHeight(Unit.auto()).withId("desc")
+        new VerticalNode().withGap(2).withId("container").withChildren(
+            new TextNode().withHeight(Unit.auto()).withId("desc")
+        )
     );
 
-    public RewardDisplayNode(Component text) {
+    public RewardDisplayNode(Component text, Optional<List<ResourceLocation>> items) {
+        this.withChildren(root).withHeight(Unit.auto());
         this.root.getNodeWithId("desc").ifPresent(node -> {
             TextNode descNode = (TextNode) node;
             descNode.withText(text);
         });
-        this.withChildren(root).withHeight(Unit.auto());
+
+        items
+            .ifPresent(resourceLocations -> this.root.getNodeWithId("container")
+                .ifPresent(node -> node.withChildren(new ItemArrayNode().withItems(resourceLocations)))
+            );
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.mrvintage.township.ui.nodes;
 
+import com.mrvintage.township.Township;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -12,7 +13,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +79,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     private boolean shouldDebug = false;
     private boolean isFocused = false;
     private boolean shouldClip = false;
+    private boolean mouseOverLastFrame = false;
 
 
     private Optional<String> id = Optional.empty();
@@ -88,14 +89,51 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     protected Optional<Node> parent = Optional.empty();
 
     public Node withChildren(Node... children) {
-        this.children.addAll(List.of(children));
-        for (Node node : children) { node.parent = Optional.of(this);  node.layout(); }
+        for (Node node : children) {
+            this.children.add(node);
+            node.parent = Optional.of(this);
+            node.layout();
+        }
         return this;
     }
 
     public Node withChildren(List<Node> children) {
-        this.children.addAll(children);
-        for (Node node : children) { node.parent = Optional.of(this); node.layout(); }
+        for (Node node : children) {
+            this.children.add(node);
+            node.parent = Optional.of(this);
+            node.layout();
+        }
+        return this;
+    }
+
+    public Node withParent(Node parent) {
+        if (this.parent.isPresent()) {
+            this.removeParent();
+        }
+        parent.withChildren(this);
+        return this;
+    }
+
+    public Node removeChildren(Node... children) {
+        for (Node node : children) {
+            if (!this.children.contains(node)) continue;
+            this.children.remove(node);
+            node.removeParent();
+        }
+        return this;
+    }
+
+    public Node removeParent() {
+        if (this.parent.isPresent()) {
+            this.parent.get().removeChildren(this);
+            this.parent = Optional.empty();
+        }
+        return this;
+    }
+
+    public Node resetScroll() {
+        this.scrollX = 0;
+        this.scrollY = 0;
         return this;
     }
 
@@ -211,6 +249,14 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     @Override
     public final void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        if (this.isMouseOver(mouseX, mouseY)) {
+            if(!mouseOverLastFrame) this.mouseEntered();
+
+            this.mouseOverLastFrame = true;
+        } else {
+            this.mouseOverLastFrame = false;
+        }
+
         if (shouldClip) {
             guiGraphics.enableScissor(this.x(), this.y(),  this.x() + this.width(), this.y() + this.height());
         }
@@ -263,13 +309,16 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        for(Node child : this.children) {
-            if (child.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
-                return true;
+        if(this.isMouseOver(mouseX, mouseY)) {
+            for(Node child : this.children) {
+                child.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
             }
+            return true;
         }
         return false;
     }
+
+    protected void mouseEntered() {}
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -322,7 +371,11 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     /// Gets the X coord of the Node. This takes into account parent position and padding, as well as this node origin offset.
     public final int x(int defaultBasis) {
         int basis = this.parent.map(parent -> parent.getHorizontalBasis(defaultBasis)).orElse(defaultBasis);
-        int origin = this.parent.map(p -> p.x(defaultBasis)).orElse(0) + this.parent.map(Node::getPaddingLeft).orElse(0) - this.parent.map(Node::scrollX).orElse(0) - this.originX.calc(this.width());
+        int origin =
+            this.parent.map(p -> p.x(defaultBasis)).orElse(0) +
+            this.parent.map(Node::getPaddingLeft).orElse(0) -
+            this.parent.map(Node::scrollX).orElse(0) -
+            this.originX.calc(this.width());
 
         return this.x.calc(basis) + origin;
     }
@@ -332,7 +385,7 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int localX(int basis) {
-        int origin = -this.originX.calc(this.width());
+        int origin = -this.originX.calc(basis);
         return this.x.calc(basis) + origin;
     }
 
@@ -365,7 +418,8 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
 
     public final int y(int defaultBasis) {
         int basis = this.parent.map(parent -> parent.getVerticalBasis(defaultBasis)).orElse(defaultBasis);
-        int origin = this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) +
+        int origin =
+            this.parent.map(parent -> parent.y(defaultBasis)).orElse(0) +
             this.parent.map(Node::getPaddingTop).orElse(0) -
             this.parent.map(Node::scrollY).orElse(0) -
             this.originY.calc(this.height());
@@ -377,12 +431,22 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
     }
 
     public final int localY(int basis) {
-        int origin = -this.originY.calc(this.height());
+        int origin = -this.originY.calc(basis);
         return this.y.calc(basis) + origin;
     }
 
     public int scrollY() {
         return scrollY;
+    }
+
+    public Node setScrollY(int scroll) {
+        this.scrollY = scroll;
+        return this;
+    }
+
+    public Node addScrollY(int delta) {
+        this.scrollY += delta;
+        return this;
     }
 
     public final Node setY(int y) {
@@ -444,10 +508,10 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.width(defaultBasis) - pl - pr;
     }
 
-    protected int contentWidth(int basis) {
+    public int contentWidth(int basis) {
         return this.children.stream()
             .filter(child -> !child.w.isDependentOnParent())
-            .mapToInt(child -> child.contentWidth(basis))
+            .mapToInt(child -> child.localX() + child.contentWidth(basis))
             .max()
             .orElse(0);
     }
@@ -486,12 +550,16 @@ public abstract class Node implements Renderable, GuiEventListener, NarratableEn
         return this.height(defaultBasis) - pt - pb;
     }
 
-    protected int contentHeight(int basis) {
+    public int contentHeight(int basis) {
         return this.children.stream()
             .filter(child -> !child.h.isDependentOnParent())
-            .mapToInt(child -> child.contentHeight(basis))
+            .mapToInt(child -> child.localY(basis) + child.contentHeight(basis))
             .max()
             .orElse(0) + this.pt + this.pb;
+    }
+
+    public int contentHeight() {
+        return this.contentHeight(this.parentVerticalBasis());
     }
 
     //==================================================================================================================

@@ -21,4 +21,5 @@ public class Rewards {
     public static final DeferredRegister<MapCodec<? extends Reward>> DEFERRED_DISPATCH = DeferredRegister.create(DISPATCH, Township.MODID);
 
     public static final Supplier<MapCodec<? extends Reward>> COMMAND_REWARD = DEFERRED_DISPATCH.register("command", () -> CommandReward.CODEC);
+    public static final Supplier<MapCodec<? extends Reward>> ITEM_CRAFT_REWARD = DEFERRED_DISPATCH.register("allow_item_craft", () -> ItemCraftReward.CODEC);
 }

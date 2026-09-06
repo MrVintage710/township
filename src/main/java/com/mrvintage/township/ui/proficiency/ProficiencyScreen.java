@@ -3,6 +3,7 @@ package com.mrvintage.township.ui.proficiency;
 import com.mrvintage.township.profession.Profession;
 import com.mrvintage.township.ui.Sprites;
 import com.mrvintage.township.ui.nodes.*;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 
 
@@ -24,9 +25,9 @@ public class ProficiencyScreen extends NodeScreen {
 
     @Override
     protected Node root() {
-        List<Profession> proficiencies = Profession.all();
+        Registry<Profession> proficiencies = Profession.all();
 
-        this.selectedProfession = proficiencies.getFirst();
+        this.selectedProfession = proficiencies.stream().findFirst().get();
         this.selectedSpeciality = this.selectedProfession.specialties().firstKey();
         this.tree = (MeritTree) new MeritTree(this)
             .withRect(Unit.px(138), Unit.px(0), Unit.px(128), Unit.px(170));

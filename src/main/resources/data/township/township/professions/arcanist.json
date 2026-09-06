@@ -40,8 +40,8 @@
           ],
           "rewards": [
             {
-              "type": "township:command",
-              "command": "say You leveled up Simple Spellcasting!"
+              "type": "township:allow_item_craft",
+              "items": "minecraft:stick"
             }
           ]
         }

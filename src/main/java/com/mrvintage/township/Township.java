@@ -5,6 +5,7 @@ import com.mrvintage.township.commands.MeritPathArgument;
 import com.mrvintage.township.event.ServerGameEvents;
 import com.mrvintage.township.event.ServerModEvents;
 import com.mrvintage.township.commands.ModCommands;
+import com.mrvintage.township.lock.LockRegistry;
 import com.mrvintage.township.profession.goal.Goals;
 import com.mrvintage.township.profession.reward.Rewards;
 import com.mrvintage.township.registry.DataAttachments;

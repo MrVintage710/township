@@ -66,7 +66,7 @@ public class TextNode extends Node{
     }
 
     @Override
-    protected int contentHeight(int basis) {
+    public int contentHeight(int basis) {
         Font font = Minecraft.getInstance().font;
         int textWidth = Math.min( this.width(), font.width( this.text));
         int textHeight = font.wordWrapHeight( this.text.getString(), textWidth ) + 2;
@@ -74,7 +74,7 @@ public class TextNode extends Node{
         return Math.max(super.contentHeight(basis), textHeight) ;
     }
 
-    protected int contentWidth(int basis) {
+    public int contentWidth(int basis) {
         Font font = Minecraft.getInstance().font;
         int textWidth = Math.min( this.width(), font.width( this.text));
 

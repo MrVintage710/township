@@ -3,7 +3,7 @@ package com.mrvintage.township.profession;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrvintage.township.Township;
-import com.mrvintage.township.profession.goal.Goal;
+import com.mrvintage.township.lock.LockRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public record Profession(String name, ResourceLocation icon, TreeMap<String, Specialty> specialties) {
 
@@ -71,19 +72,18 @@ public record Profession(String name, ResourceLocation icon, TreeMap<String, Spe
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static List<Profession> all() {
+    public static Registry<Profession> all() {
         var connection = Minecraft.getInstance().getConnection();
-        if (connection != null) {
-            var registry = connection.registryAccess().registry(Profession.REGISTRY_KEY);
-            return registry.map(professions -> professions.stream().toList()).orElseGet(ArrayList::new);
-        }
-
-        return new ArrayList<>();
+//        if (connection != null) {
+//            var registry = connection.registryAccess().registry(Profession.REGISTRY_KEY);
+//            return registry.map(professions -> professions.stream().toList()).orElseGet(ArrayList::new);
+//        }
+        return connection.registryAccess().registry(Profession.REGISTRY_KEY).get();
     }
 
-    public static List<Profession> all(ServerLevel level) {
+    public static Registry<Profession> all(ServerLevel level) {
         var registry = level.registryAccess().registry(Profession.REGISTRY_KEY);
-        return registry.map(professions -> professions.stream().toList()).orElseGet(ArrayList::new);
+        return registry.get();
     }
 
     public static Set<Map.Entry<ResourceKey<Profession>, Profession>> entries(ServerLevel level) {
@@ -124,18 +124,4 @@ public record Profession(String name, ResourceLocation icon, TreeMap<String, Spe
 
         return merits;
     }
-
-    public record GoalPair(Merit.Path merit, Goal goal) {}
-
-//    public static <E extends Event, T extends Goal<E>> List<GoalPair> allGoalsOfType(ServerLevel level, Class<T> clazz) {
-//        return Profession.entries(level).stream().map(profession -> profession.getValue().allGoalsOfType(profession.getKey().location(), clazz)).flatMap(List::stream).toList();
-//    }
-//
-//    public <E extends Event, T extends Goal<E>> List<GoalPair> allGoalsOfType(ResourceLocation location, Class<T> clazz) {
-//        return this.specialties.entrySet().stream().map( specialty ->
-//            specialty.getValue().merits().entrySet().stream().map(merit ->
-//                merit.getValue().goals().stream().filter(clazz::isInstance).map(goal -> new GoalPair(new Merit.Path(location, specialty.getKey(), merit.getKey()), goal)).toList()
-//            ).flatMap(List::stream).toList()
-//        ).flatMap(List::stream).toList();
-//    }
 }

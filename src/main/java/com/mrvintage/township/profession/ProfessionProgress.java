@@ -99,6 +99,16 @@ public final class ProfessionProgress {
         return player.getData(DataAttachments.PROFESSION_PROGRESS);
     }
 
+    public static boolean hasCompleted(ServerPlayer player, Merit.Path merit) {
+        var progress = ProfessionProgress.progressOf(player);
+        return progress.doneList.contains(merit);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static boolean hasCompleted(Merit.Path merit) {
+        return ProfessionProgress.ClientProfessionProgress.doneList.contains(merit);
+    }
+
     public boolean isInProgress(Merit.Path path) {
         return inProgress.containsKey(path);
     }
@@ -173,8 +183,8 @@ public final class ProfessionProgress {
     }
 
     public void awardMerit(Merit.Path meritPath, ServerPlayer player, Merit merit) {
-        merit.rewards().forEach(reward -> reward.rewardPlayer(player));
         this.awardMerit(meritPath, player, false);
+        merit.rewards().forEach(reward -> reward.rewardPlayer(player));
     }
 
     @Override

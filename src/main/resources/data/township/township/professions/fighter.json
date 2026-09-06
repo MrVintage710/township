@@ -41,9 +41,8 @@
           ],
           "rewards" : [
             {
-              "type": "township:command",
-              "command": "say Hello World!",
-              "rewardMessage": "A nice Message :)"
+              "type": "township:allow_item_craft",
+              "items": "minecraft:bow"
             }
           ]
         }

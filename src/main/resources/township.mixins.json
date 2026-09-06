@@ -1,9 +1,10 @@
 {
   "required": true,
-  "package": "com.mrvintage.township.mixin",
+  "package": "com.mrvintage.township.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-
+    "CraftingMenuMixin",
+    "ServerPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

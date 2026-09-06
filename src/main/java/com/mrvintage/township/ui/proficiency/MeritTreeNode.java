@@ -16,9 +16,12 @@ public class MeritTreeNode extends Node {
     public final MeritSheet meritSheet;
     public final boolean complete;
 
+    private final Node.Rect popupRect;
+
     public MeritTreeNode(Merit.Path path, Node.Rect popupRect, boolean complete) {
         this.path = path;
-        this.meritSheet = (MeritSheet) new MeritSheet(path).withRect(popupRect);
+        this.popupRect = popupRect;
+        this.meritSheet = (MeritSheet) new MeritSheet(path).withRect(this.popupRect);
         this.meritSheet.layout();
         this.complete = complete;
 
@@ -29,12 +32,33 @@ public class MeritTreeNode extends Node {
             );
         });
 
+        this.withWidth(22).withHeight(22).withOrigin(11, 0);
     }
 
     @Override
     public void layout() {
-        this.withWidth(22).withHeight(22).withOrigin(11, 0);
+
         super.layout();
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        this.meritSheet.getNodeWithId("container").ifPresent(
+            node -> {
+                var maxScroll = node.contentHeight() - node.height();
+                if (node.scrollY() <= maxScroll && node.scrollY() >= 0) {
+                    node.addScrollY((int) (scrollY * -5.0f));
+                    node.setScrollY(Math.max(Math.min(maxScroll, node.scrollY()), 0));
+                    node.layout();
+                }
+            }
+        );
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+    }
+
+    @Override
+    protected void mouseEntered() {
+        this.meritSheet.getNodeWithId("container").ifPresent(Node::resetScroll);
     }
 
     @Override
@@ -44,7 +68,7 @@ public class MeritTreeNode extends Node {
         if (hovered) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.0f, 0.0f, 1000.0f);
-            this.meritSheet.render(guiGraphics, mouseX, mouseY, delta);
+            this.meritSheet.withRect(this.popupRect).render(guiGraphics, mouseX, mouseY, delta);
             guiGraphics.pose().popPose();
         }
 
