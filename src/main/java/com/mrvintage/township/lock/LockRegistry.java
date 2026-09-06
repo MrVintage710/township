@@ -4,6 +4,7 @@ import com.mrvintage.township.profession.Merit;
 import com.mrvintage.township.profession.ProfessionProgress;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -14,6 +15,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
 public class LockRegistry {
     private static final LockRegistry INSTANCE = new LockRegistry();
@@ -40,6 +42,13 @@ public class LockRegistry {
         var id = BuiltInRegistries.ITEM.getKey(item);
         var meritPath = Optional.ofNullable(this.restrictedCrafts.get(id));
         return meritPath.map(path -> ProfessionProgress.hasCompleted(player, path)).orElse(true);
+    }
+
+    public boolean canPlayerCraft(MinecraftServer server, UUID playerID, Item item) {
+        if(item == null) return true;
+        var id = BuiltInRegistries.ITEM.getKey(item);
+        var meritPath = Optional.ofNullable(this.restrictedCrafts.get(id));
+        return meritPath.map(path -> ProfessionProgress.hasCompleted(server, playerID, path)).orElse(true);
     }
 
     public boolean canPlayerCraft(ServerPlayer player, RecipeHolder<?> recipeHolder) {

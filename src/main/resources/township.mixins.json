@@ -3,6 +3,8 @@
   "package": "com.mrvintage.township.mixins",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CrafterBlockEntityMixin",
+    "CrafterBlockMixin",
     "CraftingMenuMixin",
     "ServerPlayerMixin"
   ],

@@ -1,17 +1,24 @@
 package com.mrvintage.township.profession;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mrvintage.township.Township;
 import com.mrvintage.township.networking.UpdatePlayerProfessionProgress;
 import com.mrvintage.township.profession.goal.Goal;
 import com.mrvintage.township.registry.DataAttachments;
 import com.mrvintage.township.ui.PlayerOverlayPatch;
+import net.minecraft.nbt.*;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -97,6 +104,40 @@ public final class ProfessionProgress {
 
     public static ProfessionProgress progressOf(ServerPlayer player) {
         return player.getData(DataAttachments.PROFESSION_PROGRESS);
+    }
+
+    public static Optional<ProfessionProgress> progressOf(MinecraftServer server, UUID uuid) {
+        ServerPlayer onlinePlayer = server.getPlayerList().getPlayer(uuid);
+
+        if(onlinePlayer == null) {
+            File playerFile = new File(server.getWorldPath(LevelResource.PLAYER_DATA_DIR).toFile(), uuid + ".dat");
+            if (playerFile.exists()) {
+                CompoundTag nbt = null;
+                try {
+                    nbt = NbtIo.readCompressed(playerFile.toPath(), NbtAccounter.unlimitedHeap());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                if (nbt.contains("neoforge:attachments", Tag.TAG_COMPOUND)) {
+                    CompoundTag attachments = nbt.getCompound("NeoForge.Attachments");
+                    // Read your specific attachment key namespace path
+                    String id = Township.MODID + ":profession_progress";
+                    if (attachments.contains(id)) {
+                        CompoundTag professionProgress = attachments.getCompound(id);
+                        return ProfessionProgress.CODEC.parse(NbtOps.INSTANCE, professionProgress).result();
+                    }
+                }
+            }
+        } else {
+            return Optional.of(ProfessionProgress.progressOf(onlinePlayer));
+        }
+
+        return Optional.empty();
+    }
+
+    public static boolean hasCompleted(MinecraftServer server, UUID uuid, Merit.Path merit) {
+        var progress = progressOf(server, uuid);
+        return progress.map(p -> p.doneList.contains(merit)).orElse(false);
     }
 
     public static boolean hasCompleted(ServerPlayer player, Merit.Path merit) {

@@ -39,4 +39,14 @@ public class Config {
     private static boolean validateItemName(final Object obj) {
         return obj instanceof String itemName && BuiltInRegistries.ITEM.containsKey(ResourceLocation.parse(itemName));
     }
+
+    //==================================================================================================================
+    //      Township Config
+    //==================================================================================================================
+
+//    public static final ModConfigSpec.IntValue CRAFTER_CHECK_RADIUS = BUILDER
+//        .comment(
+//            "When a crafter attempts to craft an item, it checks within a specific radius",
+//            "around it for the closest player"
+//        ).defineInRange("crafterCheckRadius", 4, 0, 30);
 }
